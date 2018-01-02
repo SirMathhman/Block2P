@@ -38,6 +38,7 @@ class ConnectionTest {
     @Test
     void stream() throws IOException {
         connection.write(100);
+        connection.flush();
         Assertions.assertEquals(100, connection.read());
 
         connection.close();
