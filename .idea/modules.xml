@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Block2P.iml" filepath="$PROJECT_DIR$/Block2P.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/block2p-master.iml" filepath="$PROJECT_DIR$/.idea/modules/block2p-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/block2p-master_main.iml" filepath="$PROJECT_DIR$/.idea/modules/block2p-master_main.iml" group="block2p-master" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/block2p-master_test.iml" filepath="$PROJECT_DIR$/.idea/modules/block2p-master_test.iml" group="block2p-master" />
+    </modules>
+  </component>
+</project>
