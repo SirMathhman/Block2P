@@ -1,7 +1,5 @@
 package com.meti.connect;
 
-import com.meti.util.Handler;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +13,7 @@ public class Peer {
     private final Set<ConnectionListener> listenerSet = new HashSet<>();
     private final Set<Connection> connectionSet = new HashSet<>();
 
-    private final Handler<Connection, Boolean> connectionHandler;
+    private final ConnectionHandler handler;
 
     public Peer() {
         this(obj -> {
@@ -24,8 +22,8 @@ public class Peer {
         });
     }
 
-    public Peer(Handler<Connection, Boolean> connectionHandler) {
-        this.connectionHandler = connectionHandler;
+    public Peer(ConnectionHandler handler) {
+        this.handler = handler;
     }
 
     public ConnectionListener listen(int port) throws IOException {
@@ -39,7 +37,7 @@ public class Peer {
 
     public Boolean initConnection(Connection connection) throws Exception {
         connectionSet.add(connection);
-        return connectionHandler.handle(connection);
+        return handler.handle(connection);
     }
 
     public void close() throws IOException {
