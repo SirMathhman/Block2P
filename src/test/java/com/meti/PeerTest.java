@@ -1,8 +1,8 @@
 package com.meti;
 
 import com.meti.connect.Connection;
-import com.meti.connect.ConnectionListener;
 import com.meti.connect.Peer;
+import com.meti.connect.SimpleConnectionListener;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ class PeerTest {
 
     @Test
     void listen() throws IOException {
-        ConnectionListener listener = peer.listen(0);
+        SimpleConnectionListener listener = peer.listen(0);
         Assertions.assertNotNull(listener);
     }
 

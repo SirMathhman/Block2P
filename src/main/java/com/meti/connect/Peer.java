@@ -10,7 +10,7 @@ import java.util.Set;
  * @since 1/2/2018
  */
 public class Peer {
-    private final Set<ConnectionListener> listenerSet = new HashSet<>();
+    private final Set<SimpleConnectionListener> listenerSet = new HashSet<>();
     private final Set<Connection> connectionSet = new HashSet<>();
 
     private final ConnectionHandler handler;
@@ -26,8 +26,8 @@ public class Peer {
         this.handler = handler;
     }
 
-    public ConnectionListener listen(int port) throws IOException {
-        ConnectionListener listener = new ConnectionListener(port, this);
+    public SimpleConnectionListener listen(int port) {
+        SimpleConnectionListener listener = new SimpleConnectionListener(port, this);
         listener.listen();
 
         listenerSet.add(listener);
@@ -41,7 +41,7 @@ public class Peer {
     }
 
     public void close() throws IOException {
-        for (ConnectionListener listener : listenerSet) {
+        for (SimpleConnectionListener listener : listenerSet) {
             listener.close();
         }
 
