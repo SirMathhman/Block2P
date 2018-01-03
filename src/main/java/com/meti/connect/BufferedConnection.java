@@ -40,6 +40,11 @@ public class BufferedConnection extends Connection {
 
     @Override
     public int read() {
+        boolean shouldLoop;
+        do {
+            shouldLoop = queue.size() == 0;
+        } while (shouldLoop);
+
         return queue.poll();
     }
 
