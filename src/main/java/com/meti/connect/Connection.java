@@ -9,11 +9,11 @@ import java.io.OutputStream;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class Connection {
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
+public class Connection<I extends InputStream, O extends OutputStream> {
+    private final I inputStream;
+    private final O outputStream;
 
-    public Connection(InputStream inputStream, OutputStream outputStream) {
+    public Connection(I inputStream, O outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
     }
@@ -35,11 +35,11 @@ public class Connection {
         outputStream.close();
     }
 
-    public InputStream getInputStream() {
+    public I getInputStream() {
         return inputStream;
     }
 
-    public OutputStream getOutputStream() {
+    public O getOutputStream() {
         return outputStream;
     }
 }

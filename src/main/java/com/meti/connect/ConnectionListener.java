@@ -3,6 +3,10 @@ package com.meti.connect;
 import com.meti.util.Loop;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -12,19 +16,39 @@ import java.net.SocketException;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class ConnectionListener<T extends Connection> {
+public class ConnectionListener {
     private final ServerSocket serverSocket;
     private final Peer parent;
-    private final Class<T> connectionClass;
+
+    private Class<?> connectionClass;
 
     private boolean listening = false;
+    private Constructor<?> toUse;
 
-    public ConnectionListener(int port, Peer parent, Class<T> connectionClass) throws IOException {
+    public ConnectionListener(int port, Peer parent) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.parent = parent;
-        this.connectionClass = connectionClass;
+        initConnectionClass(SimpleConnection.class);
     }
 
+    public void initConnectionClass(Class<?> connectionClass) {
+        Constructor<?>[] constructors = connectionClass.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            Parameter[] parameters = constructor.getParameters();
+
+            //TODO: change to sources
+            if (InputStream.class.isAssignableFrom(parameters[0].getType()) &&
+                    OutputStream.class.isAssignableFrom(parameters[1].getType())) {
+                toUse = constructor;
+            }
+        }
+
+        if (toUse == null) {
+            throw new IllegalStateException("No valid constructor found for connections in " + this.connectionClass.getName() + "!");
+        } else {
+            this.connectionClass = connectionClass;
+        }
+    }
 
     public void listen() {
         listening = true;
@@ -44,27 +68,13 @@ public class ConnectionListener<T extends Connection> {
         protected void loop() throws Exception {
             try {
                 Socket socket = serverSocket.accept();
-                Connection connection = new Connection(socket.getInputStream(), socket.getOutputStream());
-
-            /*    Constructor<?> toUse = null;
-                Constructor<?>[] constructors = connectionClass.getConstructors();
-                for (int i = 0; i < constructors.length; i++) {
-                    Constructor<?> constructor = constructors[i];
-                    Parameter[] parameters = constructor.getParameters();
-                    if (InputStream.class.isAssignableFrom(parameters[0].getType()) &&
-                            OutputStream.class.isAssignableFrom(parameters[1].getType())) {
-                        toUse = constructor;
-                    }
-                }
-
-                if(toUse == null){
-                    throw new IllegalSTAe
-                            ''
-                }
                 Object obj = toUse.newInstance(socket.getInetAddress(), socket.getOutputStream());
-*/
-
-                parent.initConnection(connection);
+                if (obj instanceof Connection) {
+                    Connection connection = (Connection) obj;
+                    parent.initConnection(connection);
+                } else {
+                    throw new IllegalStateException("Constructor in " + connectionClass.getName() + " does not return a connection!");
+                }
             } catch (SocketException e) {
                 Thread.currentThread().interrupt();
             }

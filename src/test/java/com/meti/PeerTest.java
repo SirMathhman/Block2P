@@ -2,7 +2,6 @@ package com.meti;
 
 import com.meti.connect.Connection;
 import com.meti.connect.Peer;
-import com.meti.connect.SimpleConnectionListener;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

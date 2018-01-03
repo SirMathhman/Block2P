@@ -1,8 +1,8 @@
 # Block2P
-In real time peer to peer applications using blockchain technology.
+In real-time peer to peer applications using blockchain technology.
 
 ## The Problem
-Nowadays, communication between two users via a server is extremely difficult. When a user wants to a make a change to the server contents, the server has to tell all the connected clients to update if it is in real time. Additionally, a server may face downtime and other concerns.
+Nowadays, communication between two users via a server is extremely difficult. When a user wants to a make a change to the server contents, the server has to tell all the connected clients to update if it is in real-time. Additionally, a server may face downtime and other concerns.
 
 ### Peer to Peer Networks
 But if you build a peer to peer network, then the users can connect directly with no regulation between two parties, AKA the server.
