@@ -12,8 +12,14 @@ class BufferedConnectionTest {
     @Test
     void read() throws Exception {
         ConnectionHandler handler = obj -> {
-            obj.write(obj.read());
-            obj.flush();
+            Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+                int n1 = obj.read();
+                int n2 = obj.read();
+                int n3 = obj.read();
+
+                Assertions.assertArrayEquals(new int[]{3, 4, 5}, new int[]{n1, n2, n3});
+            });
+
             return true;
         };
         Peer peer = new Peer(handler);
@@ -28,14 +34,6 @@ class BufferedConnectionTest {
         connection.write(5);
         connection.flush();
 
-        Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
-            int n1 = connection.read();
-            int n2 = connection.read();
-            int n3 = connection.read();
-
-            Assertions.assertArrayEquals(new int[]{3, 4, 5}, new int[]{n1, n2, n3});
-
-            peer.close();
-        });
+        peer.close();
     }
 }

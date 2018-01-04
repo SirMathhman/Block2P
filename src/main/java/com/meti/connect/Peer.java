@@ -53,7 +53,7 @@ public class Peer {
         return connectionListener;
     }
 
-    public Boolean initConnection(final Connection connection) throws Exception {
+    public Future<Boolean> initConnection(final Connection connection) {
         connectionSet.add(connection);
 
         Callable<Boolean> callable = () -> handler.handle(connection);
@@ -66,7 +66,8 @@ public class Peer {
         } else {
             future = service.submit(callable);
         }
-        return future.get();
+
+        return future;
     }
 
     public void close() throws IOException {

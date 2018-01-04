@@ -44,7 +44,7 @@ class PeerTest {
     void initConnection() throws Exception {
         PipedInputStream inputStream = new PipedInputStream();
         PipedOutputStream outputStream = new PipedOutputStream(inputStream);
-        Connection connection = new Connection(inputStream, outputStream);
-        Assertions.assertTrue(peer.initConnection(connection));
+        Connection connection = new Connection<>(inputStream, outputStream);
+        Assertions.assertTrue(peer.initConnection(connection).get());
     }
 }
