@@ -10,32 +10,22 @@ import java.io.OutputStream;
  * @since 1/4/2018
  */
 public class Source {
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    private final InputStream inputStream;
+    private final OutputStream outputStream;
 
     public Source(InputStream inputStream, OutputStream outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
     }
 
-    public Source() {
-    }
-
     public InputStream getInputStream() {
         return inputStream;
-    }
-
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
     }
 
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
-    public void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
-    }
 
     public void close() throws IOException {
         inputStream.close();

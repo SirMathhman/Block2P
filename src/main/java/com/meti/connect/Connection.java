@@ -9,10 +9,10 @@ import java.io.IOException;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class Connection<T extends Source> {
-    private final T source;
+public class Connection {
+    private final Source source;
 
-    public Connection(T source) {
+    public Connection(Source source) {
         this.source = source;
     }
 
@@ -32,7 +32,7 @@ public class Connection<T extends Source> {
         source.close();
     }
 
-    public T getSource() {
+    public Source getSource() {
         return source;
     }
 }

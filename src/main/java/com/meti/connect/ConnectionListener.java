@@ -1,6 +1,7 @@
 package com.meti.connect;
 
 import com.meti.io.Source;
+import com.meti.io.Sources;
 import com.meti.util.Loop;
 
 import java.io.IOException;
@@ -72,12 +73,16 @@ public class ConnectionListener {
         serverSocket.close();
     }
 
+    public ServerSocket getServerSocket() {
+        return serverSocket;
+    }
+
     private class ConnectionListenerLoop extends Loop {
         @Override
         protected void loop() throws Exception {
             try {
                 Socket socket = serverSocket.accept();
-                Object obj = toUse.newInstance(socket.getInetAddress(), socket.getOutputStream());
+                Object obj = toUse.newInstance(Sources.fromSocket(socket));
                 if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
                     parent.initConnection(connection);

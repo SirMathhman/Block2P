@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * @author SirMathhman
@@ -25,8 +27,8 @@ class ConnectionTest {
 
         inputStream.connect(outputStream);
 
-        Source<InputStream, OutputStream> source = new Source<>(inputStream, outputStream);
-        connection = new Connection<>(source);
+        Source source = new Source(inputStream, outputStream);
+        connection = new Connection(source);
 
         new Thread(new ConnectionTestRunnable());
     }

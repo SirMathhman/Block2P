@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * @author SirMathhman
@@ -44,8 +46,8 @@ class PeerTest {
         PipedInputStream inputStream = new PipedInputStream();
         PipedOutputStream outputStream = new PipedOutputStream(inputStream);
 
-        Source<InputStream, OutputStream> source = new Source<>(inputStream, outputStream);
-        Connection connection = new Connection<>(source);
+        Source source = new Source(inputStream, outputStream);
+        Connection connection = new Connection(source);
         Assertions.assertTrue(peer.initConnection(connection).get());
     }
 }
