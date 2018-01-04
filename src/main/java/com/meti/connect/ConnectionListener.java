@@ -1,15 +1,15 @@
 package com.meti.connect;
 
+import com.meti.io.Source;
 import com.meti.util.Loop;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author SirMathhman
@@ -17,6 +17,7 @@ import java.net.SocketException;
  * @since 1/2/2018
  */
 public class ConnectionListener {
+    private final ExecutorService service;
     private final ServerSocket serverSocket;
     private final Peer parent;
 
@@ -26,8 +27,14 @@ public class ConnectionListener {
     private Constructor<?> toUse;
 
     public ConnectionListener(int port, Peer parent) throws IOException {
+        this(port, parent, null);
+    }
+
+    public ConnectionListener(int port, Peer parent, ExecutorService service) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.parent = parent;
+        this.service = service;
+
         initConnectionClass(SimpleConnection.class);
     }
 
@@ -36,9 +43,7 @@ public class ConnectionListener {
         for (Constructor<?> constructor : constructors) {
             Parameter[] parameters = constructor.getParameters();
 
-            //TODO: change to sources
-            if (InputStream.class.isAssignableFrom(parameters[0].getType()) &&
-                    OutputStream.class.isAssignableFrom(parameters[1].getType())) {
+            if (Source.class.isAssignableFrom(parameters[0].getType())) {
                 toUse = constructor;
             }
         }
@@ -53,8 +58,12 @@ public class ConnectionListener {
     public void listen() {
         listening = true;
 
-        //TODO: provide the ability to start from an ExecutorService
-        new Thread(new ConnectionListenerLoop()).start();
+        Loop loop = new ConnectionListenerLoop();
+        if (service == null) {
+            new Thread(loop).start();
+        } else {
+            service.submit(loop);
+        }
     }
 
     public void close() throws IOException {

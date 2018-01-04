@@ -4,14 +4,13 @@ import com.meti.connect.Connection;
 import com.meti.connect.ConnectionListener;
 import com.meti.connect.Peer;
 import com.meti.connect.SimpleConnection;
+import com.meti.io.Source;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 
 /**
  * @author SirMathhman
@@ -44,7 +43,9 @@ class PeerTest {
     void initConnection() throws Exception {
         PipedInputStream inputStream = new PipedInputStream();
         PipedOutputStream outputStream = new PipedOutputStream(inputStream);
-        Connection connection = new Connection<>(inputStream, outputStream);
+
+        Source<InputStream, OutputStream> source = new Source<>(inputStream, outputStream);
+        Connection connection = new Connection<>(source);
         Assertions.assertTrue(peer.initConnection(connection).get());
     }
 }

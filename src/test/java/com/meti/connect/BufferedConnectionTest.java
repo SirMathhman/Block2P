@@ -1,8 +1,11 @@
 package com.meti.connect;
 
+import com.meti.io.Source;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.time.Duration;
@@ -26,7 +29,8 @@ class BufferedConnectionTest {
 
         PipedInputStream inputStream = new PipedInputStream();
         PipedOutputStream outputStream = new PipedOutputStream(inputStream);
-        BufferedConnection connection = new BufferedConnection(inputStream, outputStream);
+        Source<InputStream, OutputStream> source = new Source<>(inputStream, outputStream);
+        BufferedConnection connection = new BufferedConnection(source);
         peer.initConnection(connection);
 
         connection.write(3);

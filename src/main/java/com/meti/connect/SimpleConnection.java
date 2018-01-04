@@ -1,10 +1,9 @@
 package com.meti.connect;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.meti.io.Source;
 
-public class SimpleConnection extends Connection<InputStream, OutputStream> {
-    public SimpleConnection(InputStream inputStream, OutputStream outputStream) {
-        super(inputStream, outputStream);
+public class SimpleConnection extends Connection<Source<?, ?>> {
+    public SimpleConnection(Source<?, ?> source) {
+        super(source);
     }
 }

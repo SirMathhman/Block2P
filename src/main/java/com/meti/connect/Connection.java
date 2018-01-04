@@ -1,45 +1,38 @@
 package com.meti.connect;
 
+import com.meti.io.Source;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class Connection<I extends InputStream, O extends OutputStream> {
-    private final I inputStream;
-    private final O outputStream;
+public class Connection<T extends Source<?, ?>> {
+    private final T source;
 
-    public Connection(I inputStream, O outputStream) {
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+    public Connection(T source) {
+        this.source = source;
     }
 
     public int read() throws IOException {
-        return inputStream.read();
+        return source.getInputStream().read();
     }
 
     public void write(int b) throws IOException {
-        outputStream.write(b);
+        source.getOutputStream().write(b);
     }
 
     public void flush() throws IOException {
-        outputStream.flush();
+        source.getOutputStream().flush();
     }
 
     public void close() throws IOException {
-        inputStream.close();
-        outputStream.close();
+        source.close();
     }
 
-    public I getInputStream() {
-        return inputStream;
-    }
-
-    public O getOutputStream() {
-        return outputStream;
+    public T getSource() {
+        return source;
     }
 }

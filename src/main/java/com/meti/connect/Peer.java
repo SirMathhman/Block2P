@@ -27,6 +27,11 @@ public class Peer {
         }, null);
     }
 
+    public Peer(ConnectionHandler handler, ExecutorService service) {
+        this.handler = handler;
+        this.service = service;
+    }
+
     public Peer(ExecutorService service) {
         this(obj -> {
             obj.close();
@@ -38,13 +43,13 @@ public class Peer {
         this(handler, null);
     }
 
-    public Peer(ConnectionHandler handler, ExecutorService service) {
-        this.handler = handler;
-        this.service = service;
-    }
-
     public <T extends Connection> ConnectionListener listen(int port, Class<T> c) throws IOException {
-        ConnectionListener connectionListener = new ConnectionListener(port, this);
+        ConnectionListener connectionListener;
+        if (service != null) {
+            connectionListener = new ConnectionListener(port, this);
+        } else {
+            connectionListener = new ConnectionListener(port, this, service);
+        }
         connectionListener.initConnectionClass(c);
         connectionListener.listen();
 

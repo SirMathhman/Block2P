@@ -16,7 +16,6 @@ public abstract class LoopedConnectionHandler extends Loop implements Connection
 
         new Thread(this).start();
 
-        //TODO: should loops return a value?
         return true;
     }
 }

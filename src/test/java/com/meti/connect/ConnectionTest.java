@@ -1,13 +1,12 @@
 package com.meti.connect;
 
+import com.meti.io.Source;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 
 /**
  * @author SirMathhman
@@ -25,7 +24,9 @@ class ConnectionTest {
         peer = new Peer();
 
         inputStream.connect(outputStream);
-        connection = new Connection(inputStream, outputStream);
+
+        Source<InputStream, OutputStream> source = new Source<>(inputStream, outputStream);
+        connection = new Connection<>(source);
 
         new Thread(new ConnectionTestRunnable());
     }
