@@ -9,7 +9,7 @@ import java.io.IOException;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class Connection<T extends Source<?, ?>> {
+public class Connection<T extends Source> {
     private final T source;
 
     public Connection(T source) {

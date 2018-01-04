@@ -9,21 +9,32 @@ import java.io.OutputStream;
  * @version 0.0.0
  * @since 1/4/2018
  */
-public class Source<I extends InputStream, O extends OutputStream> {
-    private final I inputStream;
-    private final O outputStream;
+public class Source {
+    private InputStream inputStream;
+    private OutputStream outputStream;
 
-    public Source(I inputStream, O outputStream) {
+    public Source(InputStream inputStream, OutputStream outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
     }
 
-    public I getInputStream() {
+    public Source() {
+    }
+
+    public InputStream getInputStream() {
         return inputStream;
     }
 
-    public O getOutputStream() {
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public OutputStream getOutputStream() {
         return outputStream;
+    }
+
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
     }
 
     public void close() throws IOException {
