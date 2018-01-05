@@ -8,15 +8,27 @@ import com.meti.util.Loop;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-//TODO: documentation
 public class BufferedConnection extends Connection {
     //not sure if we should use a priority queue here
     private final Queue<Integer> queue = new PriorityQueue<>();
 
+    /**
+     * Constructs a BufferedConnection from a Source and with the DefaultExceptionHandler.
+     *
+     * @param source The source.
+     * @see DefaultExceptionHandler
+     */
     public BufferedConnection(Source source) {
         this(source, new DefaultExceptionHandler());
     }
 
+    /**
+     * Constructs a BufferedConnection from a Source and an ExceptionHandler.
+     * If an Exception is thrown when reading from the stream into the queue,
+     * it is pushed to the handler.
+     * @param source  The source.
+     * @param handler The handler.
+     */
     public BufferedConnection(Source source, ExceptionHandler handler) {
         super(source);
 
