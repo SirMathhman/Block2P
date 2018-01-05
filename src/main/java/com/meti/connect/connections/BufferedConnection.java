@@ -31,7 +31,7 @@ public class BufferedConnection extends Connection {
      * Reads a single byte from the internal queue.
      * If the queue does not contain any bytes, the Thread waits until there is at least one byte available.
      *
-     * @return
+     * @return The byte.
      */
     @Override
     public int read() {
