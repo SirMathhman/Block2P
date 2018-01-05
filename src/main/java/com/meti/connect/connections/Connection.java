@@ -1,4 +1,4 @@
-package com.meti.connect;
+package com.meti.connect.connections;
 
 import com.meti.io.Source;
 

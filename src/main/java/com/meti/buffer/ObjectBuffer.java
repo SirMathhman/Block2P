@@ -1,6 +1,6 @@
 package com.meti.buffer;
 
-import com.meti.connect.ObjectConnection;
+import com.meti.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 
 import java.io.IOException;
@@ -13,8 +13,8 @@ import java.util.List;
  * @since 1/5/2018
  */
 public class ObjectBuffer<T> extends Buffer {
+    private final ObjectConnection connection;
     private final List<T> content;
-    private ObjectConnection connection;
 
     public ObjectBuffer(ObjectConnection connection) {
         this(new ArrayList<>(), connection);
@@ -102,6 +102,7 @@ public class ObjectBuffer<T> extends Buffer {
 
     private class ReadLoop extends Loop {
         @Override
+        @SuppressWarnings("unchecked")
         protected void loop() throws Exception {
             Object obj = connection.readUnshared();
             if (obj instanceof Change) {
@@ -109,6 +110,7 @@ public class ObjectBuffer<T> extends Buffer {
                 //unchecked cast, we don't have class type of T
 
                 int index = ((Change) obj).getIndex();
+
                 T object = (T) change.getObject();
                 if (content.size() < index) {
                     content.set(index, object);

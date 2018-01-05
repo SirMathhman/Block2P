@@ -1,5 +1,8 @@
 package com.meti.connect;
 
+import com.meti.Peer;
+import com.meti.connect.connections.Connection;
+import com.meti.connect.connections.SimpleConnection;
 import com.meti.io.Source;
 import com.meti.io.Sources;
 import com.meti.util.Loop;

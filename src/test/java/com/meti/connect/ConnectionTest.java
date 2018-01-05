@@ -1,5 +1,7 @@
 package com.meti.connect;
 
+import com.meti.Peer;
+import com.meti.connect.connections.Connection;
 import com.meti.io.Source;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -16,10 +18,11 @@ import java.io.PipedOutputStream;
  * @since 1/2/2018
  */
 class ConnectionTest {
+    private static final PipedInputStream inputStream = new PipedInputStream();
+    private static final PipedOutputStream outputStream = new PipedOutputStream();
+
     private static Peer peer;
     private static Connection connection;
-    private static PipedInputStream inputStream = new PipedInputStream();
-    private static PipedOutputStream outputStream = new PipedOutputStream();
 
     @BeforeAll
     static void construct() throws IOException {

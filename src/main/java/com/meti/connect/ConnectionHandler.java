@@ -1,5 +1,6 @@
 package com.meti.connect;
 
+import com.meti.connect.connections.Connection;
 import com.meti.util.Handler;
 
 /**

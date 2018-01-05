@@ -1,4 +1,8 @@
-package com.meti.connect;
+package com.meti;
+
+import com.meti.connect.ConnectionHandler;
+import com.meti.connect.ConnectionListener;
+import com.meti.connect.connections.Connection;
 
 import java.io.IOException;
 import java.util.HashSet;
