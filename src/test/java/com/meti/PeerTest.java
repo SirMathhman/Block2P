@@ -23,10 +23,7 @@ class PeerTest {
 
     @BeforeEach
     void before() {
-        peer = new Peer(obj -> {
-            System.out.println("Found a connection");
-            return true;
-        });
+        peer = new Peer(obj -> true);
     }
 
     @AfterEach

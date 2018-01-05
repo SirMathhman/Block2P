@@ -3,6 +3,7 @@ package com.meti.connect;
 import com.meti.Peer;
 import com.meti.connect.connections.Connection;
 import com.meti.io.Source;
+import com.meti.util.Loop;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,16 +25,18 @@ class ConnectionTest {
     private static Peer peer;
     private static Connection connection;
 
+    //methods
     @BeforeAll
     static void construct() throws IOException {
-        peer = new Peer();
+        ConnectionHandler handler = obj -> true;
+        peer = new Peer(handler);
 
         inputStream.connect(outputStream);
 
         Source source = new Source(inputStream, outputStream);
         connection = new Connection(source);
 
-        new Thread(new ConnectionTestRunnable());
+        new Thread(new ConnectionTestRunnable()).start();
     }
 
     @AfterAll
@@ -50,16 +53,12 @@ class ConnectionTest {
         connection.close();
     }
 
-    private static class ConnectionTestRunnable implements Runnable {
+    private static class ConnectionTestRunnable extends Loop {
         @Override
-        public void run() {
-            try {
-                int b = inputStream.read();
-                outputStream.write(b);
-                outputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        protected void loop() throws Exception {
+            int b = inputStream.read();
+            outputStream.write(b);
+            outputStream.flush();
         }
     }
 }

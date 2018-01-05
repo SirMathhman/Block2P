@@ -7,8 +7,8 @@ import com.meti.util.Loop;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
 
+//TODO: documentation
 public class BufferedConnection extends Connection {
     //not sure if we should use a priority queue here
     private final Queue<Integer> queue = new PriorityQueue<>();
@@ -27,16 +27,12 @@ public class BufferedConnection extends Connection {
         return new QueueThread(handler);
     }
 
-    public BufferedConnection(Source source, ExecutorService service) {
-        this(source, service, new DefaultExceptionHandler());
-    }
-
-    public BufferedConnection(Source source, ExecutorService service, ExceptionHandler handler) {
-        super(source);
-
-        service.submit(startQueueThread(handler));
-    }
-
+    /**
+     * Reads a single byte from the internal queue.
+     * If the queue does not contain any bytes, the Thread waits until there is at least one byte available.
+     *
+     * @return
+     */
     @Override
     public int read() {
         boolean shouldLoop;
