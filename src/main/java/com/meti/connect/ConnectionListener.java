@@ -124,6 +124,15 @@ public class ConnectionListener implements Closeable {
         return serverSocket;
     }
 
+    /**
+     * Gets the local port established for this listener.
+     *
+     * @return The local port.
+     */
+    public int getLocalPort() {
+        return serverSocket.getLocalPort();
+    }
+
     private class ConnectionListenerLoop extends Loop {
         @Override
         protected void loop() throws Exception {

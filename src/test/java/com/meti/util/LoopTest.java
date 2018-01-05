@@ -20,9 +20,12 @@ class LoopTest {
     }
 
     private void initTest() {
-        Loop loop = new TestLoop(obj -> {
-            success = (obj != null);
-            return null;
+        Loop loop = new TestLoop(new ExceptionHandler() {
+            @Override
+            public Void handleImpl(Exception obj) {
+                success = (obj != null);
+                return null;
+            }
         });
 
         Thread thread = new Thread(loop);

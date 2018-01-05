@@ -1,5 +1,6 @@
 package com.meti;
 
+import com.meti.connect.ConnectionHandler;
 import com.meti.connect.ConnectionListener;
 import com.meti.connect.connections.Connection;
 import com.meti.connect.connections.SimpleConnection;
@@ -23,7 +24,12 @@ class PeerTest {
 
     @BeforeEach
     void before() {
-        peer = new Peer(obj -> true);
+        peer = new Peer(new ConnectionHandler() {
+            @Override
+            public Boolean handleImpl(Connection obj) {
+                return true;
+            }
+        });
     }
 
     @AfterEach

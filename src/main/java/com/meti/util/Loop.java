@@ -40,7 +40,12 @@ public abstract class Loop implements Runnable {
             try {
                 loop();
             } catch (Exception e) {
-                handler.handle(e);
+                try {
+                    handler.handle(e);
+                } catch (Exception e1) {
+                    System.err.println("Cannot handle exception " + e1);
+                    System.exit(-1);
+                }
                 break;
             }
         }

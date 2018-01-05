@@ -7,6 +7,7 @@ import java.io.OutputStream;
 /**
  * Source is a utility class to keep code clean.
  * A Source contains an InputStream and OutputStream in one class.
+ * Sources can also be created from {@link Sources}
  *
  * @author SirMathhman
  * @version 0.0.0
@@ -15,6 +16,7 @@ import java.io.OutputStream;
 public class Source {
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private boolean closed = false;
 
     /**
      * Constructs a Source from an InputStream and an OutputStream
@@ -51,7 +53,13 @@ public class Source {
      * @throws IOException If an Exception occurred.
      */
     public void close() throws IOException {
+        closed = true;
+
         inputStream.close();
         outputStream.close();
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

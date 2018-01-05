@@ -28,7 +28,12 @@ class ConnectionTest {
     //methods
     @BeforeAll
     static void construct() throws IOException {
-        ConnectionHandler handler = obj -> true;
+        ConnectionHandler handler = new ConnectionHandler() {
+            @Override
+            public Boolean handleImpl(Connection obj) {
+                return true;
+            }
+        };
         peer = new Peer(handler);
 
         inputStream.connect(outputStream);

@@ -5,9 +5,9 @@ package com.meti.util;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public class DefaultExceptionHandler implements ExceptionHandler {
+public class DefaultExceptionHandler extends ExceptionHandler {
     @Override
-    public Void handle(Exception obj) {
+    public Void handleImpl(Exception obj) {
         obj.printStackTrace();
         return null;
     }

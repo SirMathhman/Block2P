@@ -45,9 +45,9 @@ class SimpleBufferTest {
         });
     }
 
-    private class Handler1 implements ConnectionHandler {
+    private class Handler1 extends ConnectionHandler {
         @Override
-        public Boolean handle(Connection obj) {
+        public Boolean handleImpl(Connection obj) {
             buffer1 = new SimpleBuffer(obj);
             buffer1.synchronize();
 
@@ -55,9 +55,9 @@ class SimpleBufferTest {
         }
     }
 
-    private class Handler2 implements ConnectionHandler {
+    private class Handler2 extends ConnectionHandler {
         @Override
-        public Boolean handle(Connection obj) {
+        public Boolean handleImpl(Connection obj) {
             buffer2 = new SimpleBuffer(obj);
             buffer2.synchronize();
 

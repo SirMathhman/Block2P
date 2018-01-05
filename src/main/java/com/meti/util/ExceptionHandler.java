@@ -5,7 +5,5 @@ package com.meti.util;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public interface ExceptionHandler extends Handler<Exception, Void> {
-    @Override
-    Void handle(Exception obj);
+public abstract class ExceptionHandler extends Handler<Exception, Void> {
 }

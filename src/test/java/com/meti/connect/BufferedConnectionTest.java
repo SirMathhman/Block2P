@@ -2,6 +2,7 @@ package com.meti.connect;
 
 import com.meti.Peer;
 import com.meti.connect.connections.BufferedConnection;
+import com.meti.connect.connections.Connection;
 import com.meti.io.Source;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,16 +15,19 @@ class BufferedConnectionTest {
 
     @Test
     void read() throws Exception {
-        ConnectionHandler handler = obj -> {
-            Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
-                int n1 = obj.read();
-                int n2 = obj.read();
-                int n3 = obj.read();
+        ConnectionHandler handler = new ConnectionHandler() {
+            @Override
+            public Boolean handleImpl(Connection obj) {
+                Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+                    int n1 = obj.read();
+                    int n2 = obj.read();
+                    int n3 = obj.read();
 
-                Assertions.assertArrayEquals(new int[]{3, 4, 5}, new int[]{n1, n2, n3});
-            });
+                    Assertions.assertArrayEquals(new int[]{3, 4, 5}, new int[]{n1, n2, n3});
+                });
 
-            return true;
+                return true;
+            }
         };
         Peer peer = new Peer(handler);
 

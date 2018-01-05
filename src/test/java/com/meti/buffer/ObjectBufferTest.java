@@ -49,9 +49,9 @@ class ObjectBufferTest {
         });
     }
 
-    private class Handler1 implements ConnectionHandler {
+    private class Handler1 extends ConnectionHandler {
         @Override
-        public Boolean handle(Connection obj) throws IOException {
+        public Boolean handleImpl(Connection obj) throws IOException {
             buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
             buffer1.synchronize();
 
@@ -59,9 +59,9 @@ class ObjectBufferTest {
         }
     }
 
-    private class Handler2 implements ConnectionHandler {
+    private class Handler2 extends ConnectionHandler {
         @Override
-        public Boolean handle(Connection obj) throws IOException {
+        public Boolean handleImpl(Connection obj) throws IOException {
             buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
             buffer2.synchronize();
 
