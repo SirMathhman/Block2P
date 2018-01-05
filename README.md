@@ -31,7 +31,11 @@ It depends on the application, and specifically what task you wish to do.
 ### JavaDoc
 The JavaDocs are updated as much as possible, and are encouraged to be updated during pull requests. You can find them here: https://meticuli-technologies.github.io/Block2P/javadoc/index.html
 
+### Tutorials
 For starters, the tutorial on using the library, step by step, is found on the wiki.
+
+### Website
+The website will contain notifications and announcements about the project, so check it out here: https://meticuli-technologies.github.io/Block2P/
 
 ## Usage
 ### Requirements
