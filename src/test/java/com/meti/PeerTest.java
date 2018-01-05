@@ -24,12 +24,13 @@ class PeerTest {
 
     @BeforeEach
     void before() {
-        peer = new Peer(new ConnectionHandler() {
+        ConnectionHandler handler = new ConnectionHandler() {
             @Override
             public Boolean handleImpl(Connection obj) {
                 return true;
             }
-        });
+        };
+        peer = new Peer(handler);
     }
 
     @AfterEach
