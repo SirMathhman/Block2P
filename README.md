@@ -27,6 +27,12 @@ It depends on the application, and specifically what task you wish to do.
 
 4) Location - other than cost, having a lack of location can also benefit peers in the sense that the update time will only be limited by the peer's internet speed, and not by the presence of the server on the Internet.
 
+## Documentation
+### JavaDoc
+The JavaDocs are updated as much as possible, and are encouraged to be updated during pull requests. You can find them here: https://meticuli-technologies.github.io/Block2P/javadoc/index.html
+
+For starters, the tutorial on using the library, step by step, is found on the wiki.
+
 ## Usage
 ### Requirements
 - Gradle, version 4.0 minimum
