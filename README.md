@@ -1,4 +1,4 @@
-# Block2P
+# Block2P [![Travis Build](https://travis-ci.org/Meticuli-Technologies/Block2P.svg?branch=master)](https://travis-ci.org/Meticuli-Technologies/Block2P) 
 In real-time peer to peer applications using blockchain technology.
 
 ## The Problem
