@@ -1,6 +1,6 @@
-package com.meti.buffer;
+package com.meti.io.buffer;
 
-import com.meti.connect.connections.ObjectConnection;
+import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 
 import java.io.IOException;

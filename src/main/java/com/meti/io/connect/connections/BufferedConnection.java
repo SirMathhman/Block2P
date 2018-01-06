@@ -1,4 +1,4 @@
-package com.meti.connect.connections;
+package com.meti.io.connect.connections;
 
 import com.meti.io.Source;
 import com.meti.util.DefaultExceptionHandler;

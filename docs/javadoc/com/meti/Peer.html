@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
         <li>java.lang.Object</li>
         <li>
             <ul class="inheritance">
-                <li>com.meti.Peer</li>
+                <li>com.meti.io.Peer</li>
             </ul>
         </li>
     </ul>
@@ -149,17 +149,17 @@ implements java.io.Closeable</pre>
                             </tr>
                             <tr class="altColor">
                                 <td class="colOne"><code><span class="memberNameLink"><a
-                                        href="../../com/meti/Peer.html#Peer-com.meti.connect.ConnectionHandler-">Peer</a></span>(<a
+                                        href="../../com/meti/Peer.html#Peer-com.meti.io.connect.ConnectionHandler-">Peer</a></span>(<a
                                         href="../../com/meti/connect/ConnectionHandler.html"
-                                        title="interface in com.meti.connect">ConnectionHandler</a>&nbsp;handler)</code>
+                                        title="interface in com.meti.io.connect">ConnectionHandler</a>&nbsp;handler)</code>
                                     <div class="block">Creates a peer with a handler that immediately</div>
                                 </td>
                             </tr>
                             <tr class="rowColor">
                                 <td class="colOne"><code><span class="memberNameLink"><a
-                                        href="../../com/meti/Peer.html#Peer-com.meti.connect.ConnectionHandler-java.util.concurrent.ExecutorService-">Peer</a></span>(<a
+                                        href="../../com/meti/Peer.html#Peer-com.meti.io.connect.ConnectionHandler-java.util.concurrent.ExecutorService-">Peer</a></span>(<a
                                         href="../../com/meti/connect/ConnectionHandler.html"
-                                        title="interface in com.meti.connect">ConnectionHandler</a>&nbsp;handler,
+                                        title="interface in com.meti.io.connect">ConnectionHandler</a>&nbsp;handler,
                                     java.util.concurrent.ExecutorService&nbsp;service)</code>
                                     <div class="block">Constructs a Peer with a handler and an ExecutorService.</div>
                                 </td>
@@ -198,9 +198,9 @@ implements java.io.Closeable</pre>
                                 <td class="colFirst"><code>java.util.concurrent.Future&lt;java.lang.Boolean&gt;</code>
                                 </td>
                                 <td class="colLast"><code><span class="memberNameLink"><a
-                                        href="../../com/meti/Peer.html#initConnection-com.meti.connect.connections.Connection-">initConnection</a></span>(<a
+                                        href="../../com/meti/Peer.html#initConnection-com.meti.io.connect.connections.Connection-">initConnection</a></span>(<a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.connect.connections">Connection</a>&nbsp;connection)</code>
+                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connection)</code>
                                     <div class="block">
                                         Initializes a direct connection to another Peer to be picked up by a
                                         ConnectionListener.
@@ -210,9 +210,9 @@ implements java.io.Closeable</pre>
                             <tr id="i2" class="altColor">
                                 <td class="colFirst"><code>&lt;T extends <a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.connect.connections">Connection</a>&gt;<br><a
+                                        title="class in com.meti.io.connect.connections">Connection</a>&gt;<br><a
                                         href="../../com/meti/connect/ConnectionListener.html"
-                                        title="class in com.meti.connect">ConnectionListener</a></code></td>
+                                        title="class in com.meti.io.connect">ConnectionListener</a></code></td>
                                 <td class="colLast"><code><span class="memberNameLink"><a
                                         href="../../com/meti/Peer.html#listen-int-java.lang.Class-">listen</a></span>(int&nbsp;port,
                                     java.lang.Class&lt;T&gt;&nbsp;connectionClass)</code>
@@ -245,14 +245,14 @@ implements java.io.Closeable</pre>
                         <!--   -->
                     </a>
                         <h3>Constructor Detail</h3>
-                        <a name="Peer-com.meti.connect.ConnectionHandler-">
+                        <a name="Peer-com.meti.io.connect.ConnectionHandler-">
                             <!--   -->
                         </a>
                         <ul class="blockList">
                             <li class="blockList">
                                 <h4>Peer</h4>
                                 <pre>public&nbsp;Peer(<a href="../../com/meti/connect/ConnectionHandler.html"
-                                                         title="interface in com.meti.connect">ConnectionHandler</a>&nbsp;handler)</pre>
+                                                         title="interface in com.meti.io.connect">ConnectionHandler</a>&nbsp;handler)</pre>
                                 <div class="block">Creates a peer with a handler that immediately</div>
                                 <dl>
                                     <dt><span class="paramLabel">Parameters:</span></dt>
@@ -260,14 +260,14 @@ implements java.io.Closeable</pre>
                                 </dl>
                             </li>
                         </ul>
-                        <a name="Peer-com.meti.connect.ConnectionHandler-java.util.concurrent.ExecutorService-">
+                        <a name="Peer-com.meti.io.connect.ConnectionHandler-java.util.concurrent.ExecutorService-">
                             <!--   -->
                         </a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>Peer</h4>
                                 <pre>public&nbsp;Peer(<a href="../../com/meti/connect/ConnectionHandler.html"
-                                                         title="interface in com.meti.connect">ConnectionHandler</a>&nbsp;handler,
+                                                         title="interface in com.meti.io.connect">ConnectionHandler</a>&nbsp;handler,
             java.util.concurrent.ExecutorService&nbsp;service)</pre>
                                 <div class="block">Constructs a Peer with a handler and an ExecutorService.</div>
                                 <dl>
@@ -317,9 +317,9 @@ implements java.io.Closeable</pre>
                                 <h4>listen</h4>
                                 <pre>public&nbsp;&lt;T extends <a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.connect.connections">Connection</a>&gt;&nbsp;<a
+                                        title="class in com.meti.io.connect.connections">Connection</a>&gt;&nbsp;<a
                                         href="../../com/meti/connect/ConnectionListener.html"
-                                        title="class in com.meti.connect">ConnectionListener</a>&nbsp;listen(int&nbsp;port,
+                                        title="class in com.meti.io.connect">ConnectionListener</a>&nbsp;listen(int&nbsp;port,
                                                         java.lang.Class&lt;T&gt;&nbsp;connectionClass)
                                                  throws java.io.IOException</pre>
                                 <div class="block"><p>
@@ -349,7 +349,7 @@ implements java.io.Closeable</pre>
                                 </dl>
                             </li>
                         </ul>
-                        <a name="initConnection-com.meti.connect.connections.Connection-">
+                        <a name="initConnection-com.meti.io.connect.connections.Connection-">
                             <!--   -->
                         </a>
                         <ul class="blockListLast">
@@ -357,7 +357,7 @@ implements java.io.Closeable</pre>
                                 <h4>initConnection</h4>
                                 <pre>public&nbsp;java.util.concurrent.Future&lt;java.lang.Boolean&gt;&nbsp;initConnection(<a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.connect.connections">Connection</a>&nbsp;connection)</pre>
+                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connection)</pre>
                                 <div class="block"><p>
                                     Initializes a direct connection to another Peer to be picked up by a
                                     ConnectionListener.

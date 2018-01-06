@@ -1,4 +1,4 @@
-package com.meti.buffer;
+package com.meti.io.buffer;
 
 import java.io.Serializable;
 

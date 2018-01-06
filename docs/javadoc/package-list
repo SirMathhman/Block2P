@@ -1,6 +1,6 @@
 com.meti
-com.meti.buffer
-com.meti.connect
-com.meti.connect.connections
+com.meti.io.buffer
+com.meti.io.connect
+com.meti.io.connect.connections
 com.meti.io
 com.meti.util

@@ -1,11 +1,12 @@
-package com.meti.connect;
+package com.meti.io.connect;
 
-import com.meti.connect.connections.Connection;
+import com.meti.io.Peer;
+import com.meti.io.connect.connections.Connection;
 import com.meti.util.Handler;
 
 /**
  * Pseudo-implementation of Handler that specifies a strict implementation for a Peer.
- * @see com.meti.Peer
+ * @see Peer
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/2/2018
