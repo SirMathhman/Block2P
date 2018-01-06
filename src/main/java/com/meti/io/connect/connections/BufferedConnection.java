@@ -35,6 +35,10 @@ public class BufferedConnection extends Connection {
         new Thread(startQueueThread(handler));
     }
 
+    public boolean hasData() {
+        return !queue.isEmpty();
+    }
+
     private Runnable startQueueThread(ExceptionHandler handler) {
         return new QueueThread(handler);
     }

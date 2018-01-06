@@ -14,7 +14,6 @@ public class SimpleBuffer extends Buffer {
     private final int[] buffer = new int[256];
     private final Connection connection;
 
-    //TODO: multiple connections
     public SimpleBuffer(Connection connection) {
         this.connection = connection;
     }
