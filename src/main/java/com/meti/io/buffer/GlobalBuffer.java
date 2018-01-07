@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @since 1/6/2018
  */
 public class GlobalBuffer extends Buffer {
-    private final ArrayList<BufferedConnection> connections = new ArrayList<>();
+    private final ArrayList<Connection> connections = new ArrayList<>();
     private int[] buffer = new int[255];
 
     @Override
@@ -20,7 +20,7 @@ public class GlobalBuffer extends Buffer {
         return new ReadLoop();
     }
 
-    public void addConnection(BufferedConnection connection) {
+    public void addConnection(Connection connection) {
         connections.add(connection);
     }
 
@@ -53,8 +53,8 @@ public class GlobalBuffer extends Buffer {
 
     private class ReadLoop extends Loop {
         @Override
-        protected void loop() {
-            for (BufferedConnection connection : connections) {
+        protected void loop() throws IOException {
+            for (Connection connection : connections) {
                 if (connection.hasData()) {
                     int index = connection.read();
                     int value = connection.read();
