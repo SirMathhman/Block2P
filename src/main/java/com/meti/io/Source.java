@@ -1,5 +1,6 @@
 package com.meti.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,7 +14,7 @@ import java.io.OutputStream;
  * @version 0.0.0
  * @since 1/4/2018
  */
-public class Source {
+public class Source implements Closeable {
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private boolean closed = false;
@@ -52,12 +53,14 @@ public class Source {
      *
      * @throws IOException If an Exception occurred.
      */
+    @Override
     public void close() throws IOException {
         closed = true;
 
         inputStream.close();
         outputStream.close();
     }
+
 
     public boolean isClosed() {
         return closed;

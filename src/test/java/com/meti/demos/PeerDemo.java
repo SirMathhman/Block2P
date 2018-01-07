@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import static com.meti.io.connect.connections.Connection.PROPERTIES.ON_CLOSED;
+
 /**
  * @author SirMathhman
  * @version 0.0.0
@@ -49,9 +51,10 @@ public class PeerDemo {
             Connection connection = new Connection(socketSource);
             from.initConnection(connection);
 
-            connection.getManager().put(Connection.PROPERTIES.ON_CLOSED, new EventHandler() {
+            connection.getManager().put(ON_CLOSED, new EventHandler() {
                 @Override
                 public Void handleImpl(Object obj) {
+                    //TODO: issue - 9
                     stop();
                     return null;
                 }

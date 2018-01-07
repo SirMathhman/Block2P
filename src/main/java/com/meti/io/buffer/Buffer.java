@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
  */
 public abstract class Buffer {
     //handle this
-    protected boolean isSynched;
+    protected boolean isSynchronized;
 
     public void synchronize() {
         synchronize(null);
@@ -24,12 +24,12 @@ public abstract class Buffer {
             service.submit(getLoop());
         }
 
-        isSynched = true;
+        isSynchronized = true;
     }
 
     protected abstract Loop getLoop();
 
-    public boolean isSynched() {
-        return isSynched;
+    public boolean isSynchronized() {
+        return isSynchronized;
     }
 }
