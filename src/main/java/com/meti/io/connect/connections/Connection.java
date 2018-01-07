@@ -1,7 +1,7 @@
 package com.meti.io.connect.connections;
 
 import com.meti.io.Source;
-import com.meti.util.EventManager;
+import com.meti.util.event.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;

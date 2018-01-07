@@ -4,7 +4,7 @@ import com.meti.io.Peer;
 import com.meti.io.Source;
 import com.meti.io.Sources;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.EventManager;
+import com.meti.util.event.EventManager;
 import com.meti.util.Loop;
 
 import java.io.Closeable;
