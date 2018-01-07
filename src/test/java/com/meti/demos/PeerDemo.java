@@ -1,11 +1,11 @@
 package com.meti.demos;
 
 import com.meti.io.Peer;
+import com.meti.io.Source;
+import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.io.Source;
-import com.meti.io.Sources;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -87,10 +87,15 @@ public class PeerDemo {
 
     private static class ToHandler extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) throws Exception {
-            System.out.println("Found a connection!");
-            obj.close();
-            return true;
+        public Boolean handleImpl(Connection obj) {
+            try {
+                System.out.println("Found a connection!");
+                obj.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 }

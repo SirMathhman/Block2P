@@ -8,7 +8,7 @@ package com.meti.util;
 public abstract class Handler<P, R> {
     private boolean handling;
 
-    public R handle(P parameter) throws Exception {
+    public R handle(P parameter) {
         handling = true;
         R result = handleImpl(parameter);
         handling = false;
@@ -16,7 +16,7 @@ public abstract class Handler<P, R> {
         return result;
     }
 
-    public abstract R handleImpl(P obj) throws Exception;
+    public abstract R handleImpl(P obj);
 
     public boolean isHandling() {
         return handling;
