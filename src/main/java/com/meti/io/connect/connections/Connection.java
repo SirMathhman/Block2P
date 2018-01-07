@@ -29,7 +29,6 @@ public class Connection implements Closeable {
         this.source = source;
     }
 
-
     /**
      * Closes the connection via {@link Source#close()}
      *
@@ -49,7 +48,15 @@ public class Connection implements Closeable {
      * @throws IOException If an Exception occurred.
      */
     public int read() throws IOException {
+        checkClosed();
+
         return source.getInputStream().read();
+    }
+
+    private void checkClosed() {
+        if (isClosed()) {
+            throw new IllegalStateException("Connection is closed.");
+        }
     }
 
     /**
@@ -60,6 +67,8 @@ public class Connection implements Closeable {
      * @throws IOException If an Exception occurred.
      */
     public void write(int b) throws IOException {
+        checkClosed();
+
         source.getOutputStream().write(b);
     }
 
@@ -69,6 +78,8 @@ public class Connection implements Closeable {
      * @throws IOException If an Exception occurred.
      */
     public void flush() throws IOException {
+        checkClosed();
+
         source.getOutputStream().flush();
     }
 
