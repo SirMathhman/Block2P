@@ -8,12 +8,11 @@ import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.time.Duration;
 
 /**
  * @author SirMathhman
@@ -21,10 +20,9 @@ import java.time.Duration;
  * @since 1/5/2018
  */
 class ObjectBufferTest {
-    private ObjectBuffer<Object> buffer1;
     private ObjectBuffer<Object> buffer2;
 
-    @Test
+    @RepeatedTest(5)
     public void test() throws IOException {
         ConnectionHandler handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
@@ -37,25 +35,17 @@ class ObjectBufferTest {
         ConnectionHandler handler2 = new Handler2();
         Peer peer2 = new Peer(handler2);
         peer2.initConnection(new ObjectConnection(socketSource));
-
-        Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            buffer1.add("Hello World");
-
-            boolean result;
-            do {
-                result = buffer2.size() != 0;
-            } while (result);
-            Assertions.assertEquals("Hello World", buffer2.get(0, true));
-        });
     }
 
     private class Handler1 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
+                ObjectBuffer<Object> buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
                 buffer1.synchronize();
+                buffer1.add("Hello World");
 
+                Assertions.assertEquals("Hello World", buffer2.get(0, true));
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
