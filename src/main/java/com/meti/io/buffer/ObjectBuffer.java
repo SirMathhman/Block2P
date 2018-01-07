@@ -49,7 +49,7 @@ public class ObjectBuffer<T> extends Buffer {
     }
 
     private void update(int... indexes) throws IOException {
-        if (!isSynched) {
+        if (!isSynchronized) {
             throw new IllegalStateException("Buffers aren't synchronized.");
         }
 

@@ -1,9 +1,10 @@
 package com.meti.io.connect;
 
 import com.meti.io.Peer;
-import com.meti.io.connect.connections.Connection;
 import com.meti.io.Source;
 import com.meti.io.Sources;
+import com.meti.io.connect.connections.Connection;
+import com.meti.util.EventManager;
 import com.meti.util.Loop;
 
 import java.io.Closeable;
@@ -27,12 +28,11 @@ import java.util.concurrent.ExecutorService;
  * @since 1/2/2018
  */
 public class ConnectionListener implements Closeable {
+    private final EventManager manager = new EventManager();
     private final ExecutorService service;
     private final ServerSocket serverSocket;
     private final Peer parent;
-
     private Class<?> connectionClass;
-
     private Constructor<?> toUse;
 
     /**
@@ -73,6 +73,8 @@ public class ConnectionListener implements Closeable {
     @Override
     public void close() throws IOException {
         serverSocket.close();
+
+        manager.handle(PROPERTIES.ON_CLOSE, this);
     }
 
     /**
@@ -133,11 +135,19 @@ public class ConnectionListener implements Closeable {
         return serverSocket.getLocalPort();
     }
 
+    //anonymous
+    public enum PROPERTIES {
+        ON_SOCKET_ACCEPTED, ON_CLOSE
+
+    }
+
     private class ConnectionListenerLoop extends Loop {
         @Override
         protected void loop() throws Exception {
             try {
                 Socket socket = serverSocket.accept();
+                manager.handle(PROPERTIES.ON_SOCKET_ACCEPTED, this, socket);
+
                 Object obj = toUse.newInstance(Sources.fromSocket(socket));
                 if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;

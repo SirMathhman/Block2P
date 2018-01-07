@@ -1,15 +1,18 @@
 package com.meti.demos;
 
 import com.meti.io.Peer;
+import com.meti.io.Source;
+import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.io.Source;
-import com.meti.io.Sources;
+import com.meti.util.EventHandler;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+
+import static com.meti.io.connect.connections.Connection.PROPERTIES.ON_CLOSED;
 
 /**
  * @author SirMathhman
@@ -17,35 +20,15 @@ import java.net.Socket;
  * @since 1/5/2018
  */
 public class PeerDemo {
-
-    private static ConnectionHandler fromHandler;
-
     //methods
     public static void main(String[] args) {
-        init();
-        loop();
+        start();
     }
 
-    private static void loop() {
-        boolean shouldContinue;
-        do {
-            shouldContinue = fromHandler.isHandling();
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } while (shouldContinue);
-
-        System.exit(0);
-    }
-
-    private static void init() {
+    private static void start() {
         //here we handle the peer that is being looked for
         //"the server"
         ConnectionHandler toHandler = new ToHandler();
-
         Peer to = new Peer(toHandler);
         ConnectionListener listener = null;
         try {
@@ -57,8 +40,7 @@ public class PeerDemo {
 
         //here we handle the peer that looks for the other peer
         //"the client"
-        fromHandler = new FromHandler();
-
+        ConnectionHandler fromHandler = new FromHandler();
         Peer from = new Peer(fromHandler);
         try {
             InetAddress address = InetAddress.getByName("localhost");
@@ -68,10 +50,23 @@ public class PeerDemo {
             Source socketSource = Sources.fromSocket(socket);
             Connection connection = new Connection(socketSource);
             from.initConnection(connection);
+
+            connection.getManager().put(ON_CLOSED, new EventHandler() {
+                @Override
+                public Void handleImpl(Object obj) {
+                    //TODO: issue - 9
+                    stop();
+                    return null;
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
+    }
+
+    private static void stop() {
+        System.exit(0);
     }
 
     private static class FromHandler extends ConnectionHandler {
@@ -87,10 +82,15 @@ public class PeerDemo {
 
     private static class ToHandler extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) throws Exception {
-            System.out.println("Found a connection!");
-            obj.close();
-            return true;
+        public Boolean handleImpl(Connection obj) {
+            try {
+                System.out.println("Found a connection!");
+                obj.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 }

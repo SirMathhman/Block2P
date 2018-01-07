@@ -1,12 +1,12 @@
 package com.meti.io.buffer;
 
 import com.meti.io.Peer;
+import com.meti.io.Source;
+import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
-import com.meti.io.Source;
-import com.meti.io.Sources;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -51,21 +51,32 @@ class ObjectBufferTest {
 
     private class Handler1 extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) throws IOException {
-            buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
-            buffer1.synchronize();
+        public Boolean handleImpl(Connection obj) {
+            try {
+                buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
+                buffer1.synchronize();
 
-            return true;
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                return false;
+            }
         }
     }
 
     private class Handler2 extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) throws IOException {
-            buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
-            buffer2.synchronize();
+        public Boolean handleImpl(Connection obj) {
+            try {
+                buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
+                buffer2.synchronize();
 
-            return true;
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 }

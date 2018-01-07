@@ -3,6 +3,7 @@ package com.meti.io;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
+import com.meti.util.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,10 +25,9 @@ import java.util.concurrent.FutureTask;
 public class Peer implements Closeable {
     private final Set<ConnectionListener> listenerSet = new HashSet<>();
     private final Set<Connection> connectionSet = new HashSet<>();
-
+    private final EventManager manager = new EventManager();
     private final ConnectionHandler handler;
     private final ExecutorService service;
-
     /**
      * Creates a peer with a handler that immediately
      *
@@ -62,6 +62,8 @@ public class Peer implements Closeable {
         for (Connection connection : connectionSet) {
             connection.close();
         }
+
+        manager.handle(PROPERTIES.ON_CLOSED, this);
     }
 
     /**
@@ -93,6 +95,7 @@ public class Peer implements Closeable {
 
         listenerSet.add(connectionListener);
 
+        manager.handle(PROPERTIES.ON_LISTEN, this, connectionListener);
         return connectionListener;
     }
 
@@ -120,6 +123,12 @@ public class Peer implements Closeable {
             future = service.submit(callable);
         }
 
+        manager.handle(PROPERTIES.ON_INIT_CONNECTION, this, connection);
         return future;
+    }
+
+    //anonymous
+    public enum PROPERTIES {
+        ON_LISTEN, ON_INIT_CONNECTION, ON_CLOSED
     }
 }
