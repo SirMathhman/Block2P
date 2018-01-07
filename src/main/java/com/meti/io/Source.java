@@ -17,6 +17,8 @@ import java.io.OutputStream;
 public class Source implements Closeable {
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final Closeable parent;
+
     private boolean closed = false;
 
     /**
@@ -26,8 +28,30 @@ public class Source implements Closeable {
      * @param outputStream The OutputStream.
      */
     public Source(InputStream inputStream, OutputStream outputStream) {
+        this(inputStream, outputStream, null);
+    }
+
+    public Source(InputStream inputStream, OutputStream outputStream, Closeable parent) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.parent = parent;
+    }
+
+    /**
+     * Closes the internal InputStream and OutputStream.
+     *
+     * @throws IOException If an Exception occurred.
+     */
+    @Override
+    public void close() throws IOException {
+        closed = true;
+
+        inputStream.close();
+        outputStream.close();
+
+        if (parent != null) {
+            parent.close();
+        }
     }
 
     /**
@@ -47,20 +71,6 @@ public class Source implements Closeable {
     public OutputStream getOutputStream() {
         return outputStream;
     }
-
-    /**
-     * Closes the internal InputStream and OutputStream.
-     *
-     * @throws IOException If an Exception occurred.
-     */
-    @Override
-    public void close() throws IOException {
-        closed = true;
-
-        inputStream.close();
-        outputStream.close();
-    }
-
 
     public boolean isClosed() {
         return closed;

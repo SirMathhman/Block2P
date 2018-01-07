@@ -74,7 +74,7 @@ public class PeerDemo {
         public Boolean handleImpl(Connection obj) {
             boolean shouldContinue;
             do {
-                shouldContinue = !obj.getSource().isClosed();
+                shouldContinue = !obj.isClosed();
             } while (shouldContinue);
             return true;
         }

@@ -12,7 +12,8 @@ public class Sources {
     private Sources() {
     }
 
+    //methods
     public static Source fromSocket(Socket socket) throws IOException {
-        return new Source(socket.getInputStream(), socket.getOutputStream());
+        return new Source(socket.getInputStream(), socket.getOutputStream(), socket);
     }
 }

@@ -29,6 +29,7 @@ public class Connection implements Closeable {
         this.source = source;
     }
 
+
     /**
      * Closes the connection via {@link Source#close()}
      *
@@ -82,6 +83,10 @@ public class Connection implements Closeable {
 
     public EventManager getManager() {
         return manager;
+    }
+
+    public boolean isClosed() {
+        return source.isClosed();
     }
 
     //anonymous
