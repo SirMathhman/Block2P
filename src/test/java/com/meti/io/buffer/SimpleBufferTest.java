@@ -1,12 +1,11 @@
 package com.meti.io.buffer;
 
 import com.meti.io.Peer;
+import com.meti.io.Source;
+import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.io.connect.connections.SimpleConnection;
-import com.meti.io.Source;
-import com.meti.io.Sources;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
