@@ -1,6 +1,5 @@
 package com.meti.io.buffer;
 
-import com.meti.io.connect.connections.BufferedConnection;
 import com.meti.io.connect.connections.Connection;
 import com.meti.util.Loop;
 
