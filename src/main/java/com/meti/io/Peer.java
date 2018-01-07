@@ -25,7 +25,7 @@ import java.util.concurrent.FutureTask;
 public class Peer implements Closeable {
     private final Set<ConnectionListener> listenerSet = new HashSet<>();
     private final Set<Connection> connectionSet = new HashSet<>();
-    private final EventManager peerEventManager = new EventManager();
+    private final EventManager manager = new EventManager();
     private final ConnectionHandler handler;
     private final ExecutorService service;
     /**
@@ -63,7 +63,7 @@ public class Peer implements Closeable {
             connection.close();
         }
 
-        peerEventManager.handle(PROPERTIES.ON_CLOSED, this);
+        manager.handle(PROPERTIES.ON_CLOSED, this);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Peer implements Closeable {
 
         listenerSet.add(connectionListener);
 
-        peerEventManager.handle(PROPERTIES.ON_LISTEN, this, connectionListener);
+        manager.handle(PROPERTIES.ON_LISTEN, this, connectionListener);
         return connectionListener;
     }
 
@@ -123,7 +123,7 @@ public class Peer implements Closeable {
             future = service.submit(callable);
         }
 
-        peerEventManager.handle(PROPERTIES.ON_INIT_CONNECTION, this, connection);
+        manager.handle(PROPERTIES.ON_INIT_CONNECTION, this, connection);
         return future;
     }
 
