@@ -1,7 +1,6 @@
 package com.meti.demos;
 
 import com.meti.io.Peer;
-import com.meti.io.Source;
 import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
@@ -9,8 +8,6 @@ import com.meti.io.connect.connections.Connection;
 import com.meti.util.event.EventHandler;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 
 import static com.meti.io.connect.connections.Connection.PROPERTIES.ON_CLOSED;
 
@@ -26,29 +23,19 @@ public class PeerDemo {
     }
 
     private static void start() {
-        //here we handle the peer that is being looked for
-        //"the server"
-        ConnectionHandler toHandler = new ToHandler();
-        Peer to = new Peer(toHandler);
-        ConnectionListener listener = null;
         try {
-            listener = to.listen(0, Connection.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+            //here we handle the peer that is being looked for
+            //"the server"
+            Peer to = new Peer(new ToHandler());
+            ConnectionListener listener = to.listen(0, Connection.class);
 
-        //here we handle the peer that looks for the other peer
-        //"the client"
-        ConnectionHandler fromHandler = new FromHandler();
-        Peer from = new Peer(fromHandler);
-        try {
-            InetAddress address = InetAddress.getByName("localhost");
-            int port = listener.getLocalPort();
-
-            Socket socket = new Socket(address, port);
-            Source socketSource = Sources.fromSocket(socket);
-            Connection connection = new Connection(socketSource);
+            //here we handle the peer that looks for the other peer
+            //"the client"
+            Connection connection = new Connection(Sources.fromSocket(
+                    "localhost",
+                    listener.getLocalPort()
+            ));
+            Peer from = new Peer(new FromHandler());
             from.initConnection(connection);
 
             connection.getManager().put(ON_CLOSED, new EventHandler() {

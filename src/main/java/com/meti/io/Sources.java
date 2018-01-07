@@ -1,6 +1,7 @@
 package com.meti.io;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 
 import static com.meti.io.Source.Closeable;
@@ -15,6 +16,14 @@ public class Sources {
     }
 
     //methods
+    public static Source fromSocket(String address, int port) throws IOException {
+        return fromSocket(InetAddress.getByName(address), port);
+    }
+
+    public static Source fromSocket(InetAddress address, int port) throws IOException {
+        return fromSocket(new Socket(address, port));
+    }
+
     public static Source fromSocket(Socket socket) throws IOException {
         return new Source(socket.getInputStream(), socket.getOutputStream(), new Closeable() {
             @Override
