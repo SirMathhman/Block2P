@@ -6,29 +6,38 @@ import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.io.connect.connections.ObjectConnection;
+import com.meti.util.event.EventHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.time.Duration;
 
 /**
  * @author SirMathhman
  * @version 0.0.0
- * @since 1/5/2018
+ * @since 1/7/2018
  */
-class ObjectBufferTest {
-    private ObjectBuffer<Object> buffer1;
-    private ObjectBuffer<Object> buffer2;
+public class GlobalBufferTest {
+    private GlobalBuffer buffer1;
+    private SimpleBuffer buffer2;
 
     @RepeatedTest(5)
     public void test() throws IOException {
+        buffer1 = new GlobalBuffer();
+
         ConnectionHandler handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
-        ConnectionListener listener = peer1.listen(0, ObjectConnection.class);
+        peer1.getManager().put(Peer.PROPERTIES.ON_INIT_CONNECTION, new EventHandler() {
+            @Override
+            public Void handleImpl(Object obj) {
+                Object[] args = (Object[]) obj;
+                buffer1.addConnection((Connection) args[1]);
+                return null;
+            }
+        });
+        ConnectionListener listener = peer1.listen(0, Connection.class);
 
         InetAddress address = InetAddress.getByName("localhost");
         int port = listener.getServerSocket().getLocalPort();
@@ -36,30 +45,20 @@ class ObjectBufferTest {
 
         ConnectionHandler handler2 = new Handler2();
         Peer peer2 = new Peer(handler2);
-        peer2.initConnection(new ObjectConnection(socketSource));
-
-        Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
-            buffer1.add("Hello World");
-
-            boolean result;
-            do {
-                result = buffer2.size() != 0;
-            } while (result);
-            Assertions.assertEquals("Hello World", buffer2.get(0, true));
-        });
+        peer2.initConnection(new Connection(socketSource));
     }
 
     private class Handler1 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
                 buffer1.synchronize();
+                buffer1.set(20, 100);
 
+                Assertions.assertEquals(100, buffer2.get(20));
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
-
                 return false;
             }
         }
@@ -68,15 +67,10 @@ class ObjectBufferTest {
     private class Handler2 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
-            try {
-                buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
-                buffer2.synchronize();
+            buffer2 = new SimpleBuffer(obj);
+            buffer2.synchronize();
 
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+            return true;
         }
     }
 }

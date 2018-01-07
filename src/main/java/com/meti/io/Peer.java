@@ -127,6 +127,10 @@ public class Peer implements Closeable {
         return future;
     }
 
+    public EventManager getManager() {
+        return manager;
+    }
+
     //anonymous
     public enum PROPERTIES {
         ON_LISTEN, ON_INIT_CONNECTION, ON_CLOSED

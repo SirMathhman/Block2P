@@ -5,6 +5,7 @@ import com.meti.util.Loop;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author SirMathhman
@@ -14,6 +15,18 @@ import java.util.ArrayList;
 public class GlobalBuffer extends Buffer {
     private final ArrayList<Connection> connections = new ArrayList<>();
     private int[] buffer = new int[255];
+
+    public GlobalBuffer() {
+        this(null);
+    }
+
+    public GlobalBuffer(ExecutorService service) {
+        if (service == null) {
+            new Thread(getLoop()).start();
+        } else {
+            service.submit(this::getLoop);
+        }
+    }
 
     @Override
     protected Loop getLoop() {
@@ -54,12 +67,14 @@ public class GlobalBuffer extends Buffer {
     private class ReadLoop extends Loop {
         @Override
         protected void loop() throws IOException {
-            for (Connection connection : connections) {
-                if (connection.hasData()) {
-                    int index = connection.read();
-                    int value = connection.read();
+            if (connections.size() != 0) {
+                for (Connection connection : connections) {
+                    if (connection.hasData()) {
+                        int index = connection.read();
+                        int value = connection.read();
 
-                    buffer[index] = value;
+                        buffer[index] = value;
+                    }
                 }
             }
         }

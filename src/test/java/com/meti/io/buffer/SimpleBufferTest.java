@@ -21,7 +21,7 @@ import java.net.Socket;
 class SimpleBufferTest {
     private SimpleBuffer buffer2;
 
-    @RepeatedTest(10)
+    @RepeatedTest(5)
     public void test() throws IOException {
         ConnectionHandler handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
