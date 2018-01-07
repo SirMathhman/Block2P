@@ -3,7 +3,7 @@ package com.meti.io;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.EventManager;
+import com.meti.util.event.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;

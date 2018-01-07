@@ -1,5 +1,6 @@
 package com.meti.util;
 
+import com.meti.util.handle.ExceptionHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

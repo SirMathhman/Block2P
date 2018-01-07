@@ -4,7 +4,7 @@ import com.meti.io.Peer;
 import com.meti.io.Source;
 import com.meti.io.Sources;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.EventManager;
+import com.meti.util.event.EventManager;
 import com.meti.util.Loop;
 
 import java.io.Closeable;
@@ -14,6 +14,7 @@ import java.lang.reflect.Parameter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -28,6 +29,7 @@ import java.util.concurrent.ExecutorService;
  * @since 1/2/2018
  */
 public class ConnectionListener implements Closeable {
+    private final HashMap<Socket, Connection> socketConnectionHashMap = new HashMap<>();
     private final EventManager manager = new EventManager();
     private final ExecutorService service;
     private final ServerSocket serverSocket;
@@ -109,11 +111,14 @@ public class ConnectionListener implements Closeable {
      * Creates a new Thread for listening, or on the ExecutorService if specified.
      */
     public void listen() {
-        Loop loop = new ConnectionListenerLoop();
+        Loop listenerLoop = new ConnectionListenerLoop();
+        Loop garbageLoop = new ConnectionGarbageLoop();
         if (service == null) {
-            new Thread(loop).start();
+            new Thread(listenerLoop).start();
+            new Thread(garbageLoop).start();
         } else {
-            service.submit(loop);
+            service.submit(listenerLoop);
+            service.submit(garbageLoop);
         }
     }
 
@@ -151,6 +156,7 @@ public class ConnectionListener implements Closeable {
                 Object obj = toUse.newInstance(Sources.fromSocket(socket));
                 if (obj instanceof Connection) {
                     Connection connection = (Connection) obj;
+                    socketConnectionHashMap.put(socket, connection);
                     parent.initConnection(connection);
                 } else {
                     throw new IllegalStateException("Constructor in " + connectionClass.getName() + " does not return a connection!");
@@ -158,6 +164,24 @@ public class ConnectionListener implements Closeable {
             } catch (SocketException e) {
                 Thread.currentThread().interrupt();
             }
+        }
+    }
+
+    private class ConnectionGarbageLoop extends Loop {
+
+        @Override
+        protected void loop() {
+            /*if (socketConnectionHashMap.size() > 0) {
+                Iterator<Socket> iterator = socketConnectionHashMap.keySet().iterator();
+                while (iterator.hasNext()) {
+                    Socket socket = iterator.next();
+
+                    if (socket.isClosed()) {
+                        socketConnectionHashMap.get(socket).close();
+                        iterator.remove();
+                    }
+                }
+            }*/
         }
     }
 }

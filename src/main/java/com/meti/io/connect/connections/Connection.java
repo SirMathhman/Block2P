@@ -1,7 +1,7 @@
 package com.meti.io.connect.connections;
 
 import com.meti.io.Source;
-import com.meti.util.EventManager;
+import com.meti.util.event.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -28,6 +28,7 @@ public class Connection implements Closeable {
     public Connection(Source source) {
         this.source = source;
     }
+
 
     /**
      * Closes the connection via {@link Source#close()}
@@ -82,6 +83,10 @@ public class Connection implements Closeable {
 
     public EventManager getManager() {
         return manager;
+    }
+
+    public boolean isClosed() {
+        return source.isClosed();
     }
 
     //anonymous

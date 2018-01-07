@@ -6,7 +6,7 @@ import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.EventHandler;
+import com.meti.util.event.EventHandler;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -54,7 +54,6 @@ public class PeerDemo {
             connection.getManager().put(ON_CLOSED, new EventHandler() {
                 @Override
                 public Void handleImpl(Object obj) {
-                    //TODO: issue - 9
                     stop();
                     return null;
                 }
@@ -72,11 +71,14 @@ public class PeerDemo {
     private static class FromHandler extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
-            boolean shouldContinue;
-            do {
-                shouldContinue = !obj.getSource().isClosed();
-            } while (shouldContinue);
-            return true;
+            try {
+                System.out.println("Connected!");
+                obj.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
