@@ -3,5 +3,9 @@ language: java
 before_install:
  - chmod +x gradlew
 
+email:
+     on_success: never
+     on_failure: always
+
 jdk:
 - oraclejdk8
