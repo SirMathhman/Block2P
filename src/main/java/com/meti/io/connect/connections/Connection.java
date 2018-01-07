@@ -89,6 +89,10 @@ public class Connection implements Closeable {
         return source.isClosed();
     }
 
+    public boolean hasData() throws IOException {
+        return source.getInputStream().available() > 0;
+    }
+
     //anonymous
     public enum PROPERTIES {
         ON_CLOSED
