@@ -10,12 +10,15 @@ import java.util.HashMap;
 public class EventManager {
     private final HashMap<Enum<?>, Handler<Object, Void>> eventMap = new HashMap<>();
 
-    public Handler<Object, Void> put(Enum<?> key, Handler<Object, Void> value) {
-        return eventMap.put(key, value);
+    public void put(Enum<?> key, Handler<Object, Void> value) {
+        eventMap.put(key, value);
     }
 
     public void handle(Enum<?> key, Object... parameters) {
-        get(key).handle(parameters);
+        Handler<Object, Void> handler = get(key);
+        if (handler != null) {
+            handler.handle(parameters);
+        }
     }
 
     public Handler<Object, Void> get(Enum<?> key) {

@@ -1,6 +1,7 @@
 package com.meti.io.connect.connections;
 
 import com.meti.io.Source;
+import com.meti.util.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,12 +10,14 @@ import java.io.OutputStream;
 
 /**
  * A Connection can read and write bytes from a Source.
- * @see Source
+ *
  * @author SirMathhman
  * @version 0.0.0
+ * @see Source
  * @since 1/2/2018
  */
 public class Connection implements Closeable {
+    private final EventManager manager = new EventManager();
     private final Source source;
 
     /**
@@ -34,6 +37,8 @@ public class Connection implements Closeable {
     @Override
     public void close() throws IOException {
         source.close();
+
+        manager.handle(PROPERTIES.ON_CLOSED, this);
     }
 
     /**
@@ -59,6 +64,7 @@ public class Connection implements Closeable {
 
     /**
      * Flushes the Source's OutputStream {@link OutputStream#flush()}
+     *
      * @throws IOException If an Exception occurred.
      */
     public void flush() throws IOException {
@@ -67,9 +73,19 @@ public class Connection implements Closeable {
 
     /**
      * Returns the internal Source.
+     *
      * @return The Source.
      */
     public Source getSource() {
         return source;
+    }
+
+    public EventManager getManager() {
+        return manager;
+    }
+
+    //anonymous
+    public enum PROPERTIES {
+        ON_CLOSED
     }
 }
