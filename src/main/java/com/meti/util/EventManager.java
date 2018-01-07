@@ -14,8 +14,8 @@ public class EventManager {
         return eventMap.put(key, value);
     }
 
-    public void handle(Enum<?> key, Object parameter) {
-        get(key).handle(parameter);
+    public void handle(Enum<?> key, Object... parameters) {
+        get(key).handle(parameters);
     }
 
     public Handler<Object, Void> get(Enum<?> key) {

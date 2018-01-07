@@ -3,7 +3,7 @@ package com.meti.io;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.PeerEventManager;
+import com.meti.util.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -13,8 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-
-import static com.meti.util.PeerEventManager.PROPERTIES;
 
 /**
  * A peer is an entity that can send and receive data between other peers.
@@ -27,11 +25,9 @@ import static com.meti.util.PeerEventManager.PROPERTIES;
 public class Peer implements Closeable {
     private final Set<ConnectionListener> listenerSet = new HashSet<>();
     private final Set<Connection> connectionSet = new HashSet<>();
-
-    private final PeerEventManager peerEventManager = new PeerEventManager();
+    private final EventManager peerEventManager = new EventManager();
     private final ConnectionHandler handler;
     private final ExecutorService service;
-
     /**
      * Creates a peer with a handler that immediately
      *
@@ -99,6 +95,7 @@ public class Peer implements Closeable {
 
         listenerSet.add(connectionListener);
 
+        peerEventManager.handle(PROPERTIES.ON_LISTEN, this, connectionListener);
         return connectionListener;
     }
 
@@ -126,6 +123,12 @@ public class Peer implements Closeable {
             future = service.submit(callable);
         }
 
+        peerEventManager.handle(PROPERTIES.ON_INIT_CONNECTION, this, connection);
         return future;
+    }
+
+    //anonymous
+    public enum PROPERTIES {
+        ON_LISTEN, ON_INIT_CONNECTION, ON_CLOSED
     }
 }
