@@ -27,7 +27,7 @@ class SimpleBufferTest {
     public void test() throws IOException {
         ConnectionHandler handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
-        ConnectionListener listener = peer1.listen(0, SimpleConnection.class);
+        ConnectionListener listener = peer1.listen(0, Connection.class);
 
         InetAddress address = InetAddress.getByName("localhost");
         int port = listener.getServerSocket().getLocalPort();
@@ -35,7 +35,7 @@ class SimpleBufferTest {
 
         ConnectionHandler handler2 = new Handler2();
         Peer peer2 = new Peer(handler2);
-        peer2.initConnection(new SimpleConnection(socketSource));
+        peer2.initConnection(new Connection(socketSource));
 
         Assertions.assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
             buffer1.set(20, 100);

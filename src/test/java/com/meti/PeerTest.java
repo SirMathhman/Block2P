@@ -40,7 +40,7 @@ class PeerTest {
 
     @Test
     void listen() throws IOException {
-        ConnectionListener listener = peer.listen(0, SimpleConnection.class);
+        ConnectionListener listener = peer.listen(0, Connection.class);
         Assertions.assertNotNull(listener);
     }
 
