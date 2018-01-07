@@ -73,6 +73,12 @@ public class Source implements Closeable {
     }
 
     public boolean isClosed() {
-        return closed;
+        return closed || parent.isClosed();
+    }
+
+    public interface Closeable {
+        void close() throws IOException;
+
+        boolean isClosed();
     }
 }

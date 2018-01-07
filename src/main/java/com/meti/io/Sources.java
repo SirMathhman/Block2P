@@ -14,6 +14,16 @@ public class Sources {
 
     //methods
     public static Source fromSocket(Socket socket) throws IOException {
-        return new Source(socket.getInputStream(), socket.getOutputStream(), socket);
+        return new Source(socket.getInputStream(), socket.getOutputStream(), new Source.Closeable() {
+            @Override
+            public void close() throws IOException {
+                socket.close();
+            }
+
+            @Override
+            public boolean isClosed() {
+                return socket.isClosed();
+            }
+        });
     }
 }

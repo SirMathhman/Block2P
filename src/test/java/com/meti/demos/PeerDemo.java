@@ -72,11 +72,14 @@ public class PeerDemo {
     private static class FromHandler extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
-            boolean shouldContinue;
-            do {
-                shouldContinue = !obj.isClosed();
-            } while (shouldContinue);
-            return true;
+            try {
+                System.out.println("Connected!");
+                obj.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 

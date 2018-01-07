@@ -15,7 +15,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -171,8 +170,8 @@ public class ConnectionListener implements Closeable {
     private class ConnectionGarbageLoop extends Loop {
 
         @Override
-        protected void loop() throws IOException {
-            if (socketConnectionHashMap.size() > 0) {
+        protected void loop() {
+            /*if (socketConnectionHashMap.size() > 0) {
                 Iterator<Socket> iterator = socketConnectionHashMap.keySet().iterator();
                 while (iterator.hasNext()) {
                     Socket socket = iterator.next();
@@ -182,7 +181,7 @@ public class ConnectionListener implements Closeable {
                         iterator.remove();
                     }
                 }
-            }
+            }*/
         }
     }
 }
