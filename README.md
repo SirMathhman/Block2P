@@ -43,5 +43,5 @@ The website will contain notifications and announcements about the project, so c
 - IntelliJ IDEA, Eclipse, or any other IDE that builds Gradle projects
 ### Cloning
 ```
-$ git clone https://github.com/Meticuli-Technologies/Nexus.git
+$ git clone https://github.com/Meticuli-Technologies/Block2P.git
 ```
