@@ -133,6 +133,13 @@ public class Buffer<T> {
         }
     }
 
+    public void awaitUntilSynchronized() {
+        boolean shouldContinue;
+        do {
+            shouldContinue = !isSynchronized;
+        } while (shouldContinue);
+    }
+
     //anonymous
     private enum BufferOperation {
         ADD,

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.time.Duration;
 
 /**
  * @author SirMathhman
@@ -43,9 +44,12 @@ class ObjectBufferTest {
             try {
                 ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
                 buffer1.synchronize();
-                buffer1.add("Hello World");
+                Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+                    buffer1.awaitUntilSynchronized();
+                    buffer1.add("Hello World");
 
-                Assertions.assertTrue(buffer2.contains("Hello World"));
+                    Assertions.assertTrue(buffer2.contains("Hello World"));
+                });
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();

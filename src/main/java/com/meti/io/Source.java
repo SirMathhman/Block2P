@@ -18,6 +18,8 @@ public class Source implements Closeable {
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private final Closeable parent;
+    private boolean closed = false;
+
     /**
      * Constructs a Source from an InputStream and an OutputStream
      *
@@ -45,7 +47,7 @@ public class Source implements Closeable {
             parent.close();
         }
 
-        //inputStream does not implement Closeable... nor does outputStream
+        closed = true;
     }
 
     /**
@@ -67,7 +69,11 @@ public class Source implements Closeable {
     }
 
     public boolean isClosed() {
-        return parent.isClosed();
+        if (parent != null) {
+            return parent.isClosed();
+        } else {
+            return closed;
+        }
     }
 
     interface Closeable {

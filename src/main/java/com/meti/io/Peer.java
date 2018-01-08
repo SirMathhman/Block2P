@@ -112,9 +112,7 @@ public class Peer implements Closeable {
     public Future<Boolean> initConnection(final Connection connection) {
         connectionSet.add(connection);
 
-        Callable<Boolean> callable = () -> {
-            return handler.handle(connection);
-        };
+        Callable<Boolean> callable = () -> handler.handle(connection);
         Future<Boolean> future;
         if (service == null) {
             FutureTask<Boolean> task = new FutureTask<>(callable);
