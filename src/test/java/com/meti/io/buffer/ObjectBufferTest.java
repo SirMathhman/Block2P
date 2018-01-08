@@ -41,6 +41,7 @@ class ObjectBufferTest {
     private class Handler1 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
+            boolean toReturn;
             try {
                 ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
                 buffer1.synchronize();
@@ -50,27 +51,44 @@ class ObjectBufferTest {
 
                     Assertions.assertTrue(buffer2.contains("Hello World"));
                 });
-                return true;
+                toReturn = true;
             } catch (Exception e) {
                 e.printStackTrace();
 
-                return false;
+                toReturn = false;
+            } finally {
+                try {
+                    obj.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            return toReturn;
         }
     }
 
     private class Handler2 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
+            boolean toReturn;
             try {
                 buffer2 = new ObjectBuffer(new ObjectConnection(obj));
                 buffer2.synchronize();
 
-                return true;
+                toReturn = true;
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                toReturn = false;
+            } finally {
+                try {
+                    obj.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            return toReturn;
         }
     }
 }

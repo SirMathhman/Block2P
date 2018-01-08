@@ -157,7 +157,8 @@ public class Buffer<T> {
         protected void loop() throws Exception {
             for (ObjectConnection connection : connectionSet) {
                 if (connection.hasData()) {
-                    BufferOperation operation = (BufferOperation) connection.readObject();
+                    Object token = connection.readObject();
+                    BufferOperation operation = (BufferOperation) token;
                     Object obj = connection.readObject();
                     if (tClass.isAssignableFrom(obj.getClass())) {
                         T tObj = tClass.cast(obj);
