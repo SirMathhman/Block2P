@@ -42,7 +42,7 @@ class SimpleBufferTest {
         public Boolean handleImpl(Connection obj) {
             try {
                 SimpleBuffer buffer1 = new SimpleBuffer(new ObjectConnection(obj));
-                buffer1.synchronize();
+                buffer1.open();
 
                 buffer1.add(100);
 
@@ -60,7 +60,7 @@ class SimpleBufferTest {
         public Boolean handleImpl(Connection obj) {
             try {
                 buffer2 = new SimpleBuffer(new ObjectConnection(obj));
-                buffer2.synchronize();
+                buffer2.open();
 
                 return true;
             } catch (IOException e) {

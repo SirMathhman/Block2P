@@ -43,13 +43,17 @@ class ObjectBufferTest {
         public Boolean handleImpl(Connection obj) {
             boolean toReturn;
             try {
-                ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
-                buffer1.synchronize();
                 Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+                    ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
+
+                    buffer1.open();
+
                     buffer1.awaitUntilSynchronized();
                     buffer1.add("Hello World");
 
                     Assertions.assertTrue(buffer2.contains("Hello World"));
+
+                    buffer1.close();
                 });
                 toReturn = true;
             } catch (Exception e) {
@@ -74,9 +78,10 @@ class ObjectBufferTest {
             boolean toReturn;
             try {
                 buffer2 = new ObjectBuffer(new ObjectConnection(obj));
-                buffer2.synchronize();
+                buffer2.open();
 
                 toReturn = true;
+                //buffer2 closed on other end by buffer1
             } catch (IOException e) {
                 e.printStackTrace();
                 toReturn = false;

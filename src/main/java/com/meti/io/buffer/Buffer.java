@@ -20,9 +20,14 @@ public class Buffer<T> {
     private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
     private final HashSet<T> set = new HashSet<>();
     private final Class<T> tClass;
-    private boolean isSynchronized;
 
+    private boolean open;
+    private Loop loop;
+
+    //class
 //class
+    //class
+    //class
     //class
     {
         handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
@@ -42,6 +47,16 @@ public class Buffer<T> {
             public Object handleImpl(T obj) {
                 set.clear();
                 return null;
+            }
+        });
+        handlerMap.put(BufferOperation.CLOSE, new Handler<T, Object>() {
+            @Override
+            public Object handleImpl(T obj) {
+                try {
+                    return closeImpl(true);
+                } catch (Exception e) {
+                    return e;
+                }
             }
         });
     }
@@ -65,8 +80,8 @@ public class Buffer<T> {
 
     //changing the buffer
     public boolean add(T t) throws Exception {
-        if (!isSynchronized()) {
-            throw new IllegalStateException("Connections are not synchronized.");
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
         }
 
         Object to = update(BufferOperation.ADD, t);
@@ -85,10 +100,9 @@ public class Buffer<T> {
             if (token instanceof Exception) {
                 throw (Exception) token;
             } else {
-                if(token instanceof Boolean){
+                if (token instanceof Boolean) {
                     result = result && (Boolean) token;
-                }
-                else{
+                } else {
                     throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
                 }
             }
@@ -97,13 +111,13 @@ public class Buffer<T> {
         return result;
     }
 
-    public boolean isSynchronized() {
-        return isSynchronized;
+    public boolean isOpen() {
+        return open;
     }
 
     public boolean remove(T o) throws Exception {
-        if (!isSynchronized()) {
-            throw new IllegalStateException("Connections are not synchronized.");
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
         }
 
         Object to = update(BufferOperation.REMOVE, o);
@@ -112,20 +126,20 @@ public class Buffer<T> {
     }
 
     public void clear() throws Exception {
-        if (!isSynchronized()) {
-            throw new IllegalStateException("Connections are not synchronized.");
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
         }
 
         update(BufferOperation.CLEAR, null);
         set.clear();
     }
 
-    public void synchronize() {
-        synchronize(null);
+    public void open() {
+        open(null);
     }
 
-    public void synchronize(ExecutorService service) {
-        BufferLoop loop = new BufferLoop();
+    public void open(ExecutorService service) {
+        loop = new BufferLoop();
         if (service == null) {
             new Thread(loop).start();
         } else {
@@ -136,35 +150,52 @@ public class Buffer<T> {
     public void awaitUntilSynchronized() {
         boolean shouldContinue;
         do {
-            shouldContinue = !isSynchronized;
+            shouldContinue = !open;
         } while (shouldContinue);
+    }
+
+    public void close() throws Exception {
+        closeImpl(false);
+    }
+
+    public Object closeImpl(boolean remote) throws Exception {
+        loop.setRunning(false);
+
+        if (!remote) {
+            update(BufferOperation.CLOSE, null);
+        }
+
+        return null;
     }
 
     //anonymous
     private enum BufferOperation {
         ADD,
         REMOVE,
-        CLEAR
+        CLEAR,
+        CLOSE
     }
 
     private class BufferLoop extends Loop {
         @Override
         protected void init() {
-            isSynchronized = true;
+            open = true;
         }
 
         @Override
         protected void loop() throws Exception {
-            for (ObjectConnection connection : connectionSet) {
-                if (connection.hasData()) {
-                    Object token = connection.readObject();
-                    BufferOperation operation = (BufferOperation) token;
-                    Object obj = connection.readObject();
-                    if (tClass.isAssignableFrom(obj.getClass())) {
-                        T tObj = tClass.cast(obj);
-                        Object result = handlerMap.get(operation).handle(tObj);
-                        connection.writeObject(result);
-                        connection.flush();
+            if (open) {
+                for (ObjectConnection connection : connectionSet) {
+                    if (!connection.isClosed() && connection.hasData()) {
+                        Object token = connection.readObject();
+                        BufferOperation operation = (BufferOperation) token;
+                        Object obj = connection.readObject();
+                        if (tClass.isAssignableFrom(obj.getClass())) {
+                            T tObj = tClass.cast(obj);
+                            Object result = handlerMap.get(operation).handle(tObj);
+                            connection.writeObject(result);
+                            connection.flush();
+                        }
                     }
                 }
             }

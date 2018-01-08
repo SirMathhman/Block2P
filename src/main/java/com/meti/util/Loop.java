@@ -13,6 +13,7 @@ import com.meti.util.handle.ExceptionHandler;
  */
 public abstract class Loop implements Runnable {
     private final ExceptionHandler handler;
+    private boolean running = false;
 
     /**
      * Constructs a Loop with a DefaultExceptionHandler.
@@ -40,6 +41,7 @@ public abstract class Loop implements Runnable {
      */
     @Override
     public void run() {
+        running = true;
         try {
             init();
         } catch (Exception e) {
@@ -50,7 +52,7 @@ public abstract class Loop implements Runnable {
                 System.exit(-1);
             }
         }
-        while (!Thread.interrupted()) {
+        while (running && !Thread.interrupted()) {
             try {
                 loop();
             } catch (Exception e) {
@@ -65,6 +67,10 @@ public abstract class Loop implements Runnable {
         }
     }
 
+    public void stop() {
+        setRunning(false);
+    }
+
     protected void init() {
     }
 
@@ -74,4 +80,8 @@ public abstract class Loop implements Runnable {
      * @throws Exception If an Exception occurred.
      */
     protected abstract void loop() throws Exception;
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }
