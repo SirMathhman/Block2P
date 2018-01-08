@@ -200,9 +200,9 @@ implements java.io.Closeable</pre>
                                 <td class="colLast"><code><span class="memberNameLink"><a
                                         href="../../com/meti/Peer.html#initConnection-com.meti.io.connect.connections.Connection-">initConnection</a></span>(<a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connection)</code>
+                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connectionSet)</code>
                                     <div class="block">
-                                        Initializes a direct connection to another Peer to be picked up by a
+                                        Initializes a direct connectionSet to another Peer to be picked up by a
                                         ConnectionListener.
                                     </div>
                                 </td>
@@ -329,9 +329,9 @@ implements java.io.Closeable</pre>
                                     constructor.
                                     If no ExecutorService is found to be used, then a simple thread is started.
                                     Creates a ConnectionListener bound to the port, which then listens.
-                                    Upon finding a connection, a new instance of connectionClass is attempted at being
+                                    Upon finding a connectionSet, a new instance of connectionClass is attempted at being
                                     created.
-                                    Finally, the connection is sent back up into the ConnectionHandler field to be used
+                                    Finally, the connectionSet is sent back up into the ConnectionHandler field to be used
                                     in the application if specified.
                                 </p></div>
                                 <dl>
@@ -357,18 +357,18 @@ implements java.io.Closeable</pre>
                                 <h4>initConnection</h4>
                                 <pre>public&nbsp;java.util.concurrent.Future&lt;java.lang.Boolean&gt;&nbsp;initConnection(<a
                                         href="../../com/meti/connect/connections/Connection.html"
-                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connection)</pre>
+                                        title="class in com.meti.io.connect.connections">Connection</a>&nbsp;connectionSet)</pre>
                                 <div class="block"><p>
-                                    Initializes a direct connection to another Peer to be picked up by a
+                                    Initializes a direct connectionSet to another Peer to be picked up by a
                                     ConnectionListener.
-                                    Attempts to start handling the connection on a new Thread,
+                                    Attempts to start handling the connectionSet on a new Thread,
                                     or submitted to an ExecutorService if the constructor parameter was not null.
                                 </p></div>
                                 <dl>
                                     <dt><span class="paramLabel">Parameters:</span></dt>
-                                    <dd><code>connection</code> - The connection.</dd>
+                                    <dd><code>connectionSet</code> - The connectionSet.</dd>
                                     <dt><span class="returnLabel">Returns:</span></dt>
-                                    <dd>A Future indicating the result of the connection. If it is true, the connection
+                                    <dd>A Future indicating the result of the connectionSet. If it is true, the connectionSet
                                         was established and handled successfully, otherwise false.
                                     </dd>
                                 </dl>

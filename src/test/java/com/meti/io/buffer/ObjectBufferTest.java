@@ -13,6 +13,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.time.Duration;
 
 /**
  * @author SirMathhman
@@ -20,7 +21,7 @@ import java.net.Socket;
  * @since 1/5/2018
  */
 class ObjectBufferTest {
-    private ObjectBuffer<Object> buffer2;
+    private ObjectBuffer buffer2;
 
     @RepeatedTest(5)
     public void test() throws IOException {
@@ -40,33 +41,59 @@ class ObjectBufferTest {
     private class Handler1 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
+            boolean toReturn;
             try {
-                ObjectBuffer<Object> buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
-                buffer1.synchronize();
-                buffer1.add("Hello World");
+                Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+                    ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
 
-                Assertions.assertEquals("Hello World", buffer2.get(0, true));
-                return true;
-            } catch (IOException e) {
+                    buffer1.open();
+
+                    buffer1.awaitUntilSynchronized();
+                    buffer1.add("Hello World");
+
+                    Assertions.assertTrue(buffer2.contains("Hello World"));
+
+                    buffer1.close();
+                });
+                toReturn = true;
+            } catch (Exception e) {
                 e.printStackTrace();
 
-                return false;
+                toReturn = false;
+            } finally {
+                try {
+                    obj.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            return toReturn;
         }
     }
 
     private class Handler2 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
+            boolean toReturn;
             try {
-                buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
-                buffer2.synchronize();
+                buffer2 = new ObjectBuffer(new ObjectConnection(obj));
+                buffer2.open();
 
-                return true;
+                toReturn = true;
+                //buffer2 closed on other end by buffer1
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                toReturn = false;
+            } finally {
+                try {
+                    obj.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            return toReturn;
         }
     }
 }
