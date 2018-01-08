@@ -21,6 +21,7 @@ public class GlobalBuffer extends Buffer {
     }
 
     public GlobalBuffer(ExecutorService service) {
+        super(t, tClass);
         if (service == null) {
             new Thread(getLoop()).start();
         } else {

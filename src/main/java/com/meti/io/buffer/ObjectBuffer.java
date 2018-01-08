@@ -21,6 +21,7 @@ public class ObjectBuffer<T> extends Buffer {
     }
 
     public ObjectBuffer(List<T> content, ObjectConnection connection) {
+        super(t, tClass);
         this.content = content;
         this.connection = connection;
     }

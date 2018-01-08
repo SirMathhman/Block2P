@@ -6,6 +6,7 @@ import com.meti.util.handle.ExceptionHandler;
 /**
  * The Loop class implements Runnable to constantly execute a task specified by {@link #loop()}.
  * The behaviour of the Loop is documented under {@link #run()}
+ *
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/2/2018
@@ -39,6 +40,16 @@ public abstract class Loop implements Runnable {
      */
     @Override
     public void run() {
+        try {
+            init();
+        } catch (Exception e) {
+            try {
+                handler.handle(e);
+            } catch (Exception e1) {
+                System.err.println("Cannot handle exception " + e1);
+                System.exit(-1);
+            }
+        }
         while (!Thread.interrupted()) {
             try {
                 loop();
@@ -52,6 +63,9 @@ public abstract class Loop implements Runnable {
                 break;
             }
         }
+    }
+
+    protected void init() {
     }
 
     /**

@@ -15,6 +15,7 @@ public class SimpleBuffer extends Buffer {
     private final Connection connection;
 
     public SimpleBuffer(Connection connection) {
+        super(t, tClass);
         this.connection = connection;
     }
 
