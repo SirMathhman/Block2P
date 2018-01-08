@@ -6,6 +6,7 @@ import com.meti.io.Sources;
 import com.meti.io.connect.ConnectionHandler;
 import com.meti.io.connect.ConnectionListener;
 import com.meti.io.connect.connections.Connection;
+import com.meti.io.connect.connections.ObjectConnection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 
@@ -25,7 +26,7 @@ class SimpleBufferTest {
     public void test() throws IOException {
         ConnectionHandler handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
-        ConnectionListener listener = peer1.listen(0, Connection.class);
+        ConnectionListener listener = peer1.listen(0, ObjectConnection.class);
 
         InetAddress address = InetAddress.getByName("localhost");
         int port = listener.getServerSocket().getLocalPort();
@@ -40,14 +41,14 @@ class SimpleBufferTest {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                SimpleBuffer buffer1 = new SimpleBuffer(obj);
+                SimpleBuffer buffer1 = new SimpleBuffer(new ObjectConnection(obj));
                 buffer1.synchronize();
 
-                buffer1.set(20, 100);
+                buffer1.add(100);
 
-                Assertions.assertEquals(100, buffer2.get(20));
+                Assertions.assertTrue(buffer2.contains(100));
                 return true;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
@@ -57,10 +58,15 @@ class SimpleBufferTest {
     private class Handler2 extends ConnectionHandler {
         @Override
         public Boolean handleImpl(Connection obj) {
-            buffer2 = new SimpleBuffer(obj);
-            buffer2.synchronize();
+            try {
+                buffer2 = new SimpleBuffer(new ObjectConnection(obj));
+                buffer2.synchronize();
 
-            return true;
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 }

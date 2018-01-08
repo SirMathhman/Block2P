@@ -20,7 +20,7 @@ import java.net.Socket;
  * @since 1/5/2018
  */
 class ObjectBufferTest {
-    private ObjectBuffer<Object> buffer2;
+    private ObjectBuffer buffer2;
 
     @RepeatedTest(5)
     public void test() throws IOException {
@@ -41,13 +41,13 @@ class ObjectBufferTest {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                ObjectBuffer<Object> buffer1 = new ObjectBuffer<>(new ObjectConnection(obj));
+                ObjectBuffer buffer1 = new ObjectBuffer(new ObjectConnection(obj));
                 buffer1.synchronize();
                 buffer1.add("Hello World");
 
-                Assertions.assertEquals("Hello World", buffer2.get(0, true));
+                Assertions.assertTrue(buffer2.contains("Hello World"));
                 return true;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
 
                 return false;
@@ -59,7 +59,7 @@ class ObjectBufferTest {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                buffer2 = new ObjectBuffer<>(new ObjectConnection(obj));
+                buffer2 = new ObjectBuffer(new ObjectConnection(obj));
                 buffer2.synchronize();
 
                 return true;

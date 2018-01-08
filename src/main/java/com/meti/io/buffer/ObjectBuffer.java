@@ -8,7 +8,7 @@ import com.meti.io.connect.connections.ObjectConnection;
  * @since 1/8/2018
  */
 public class ObjectBuffer extends Buffer<Object> {
-    public ObjectBuffer(Class<Object> objectClass, ObjectConnection... connections) {
-        super(objectClass, connections);
+    public ObjectBuffer(ObjectConnection... connections) {
+        super(Object.class, connections);
     }
 }
