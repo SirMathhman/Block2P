@@ -4,8 +4,10 @@ import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 import com.meti.util.handle.Handler;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -13,13 +15,14 @@ import java.util.concurrent.ExecutorService;
  * @version 0.0.0
  * @since 1/5/2018
  */
-public abstract class Buffer<T> {
-    protected final ObjectConnection connection;
+public class Buffer<T> {
+    private final Set<ObjectConnection> connectionSet = new HashSet<>();
     private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
     private final HashSet<T> set = new HashSet<>();
     private final Class<T> tClass;
-    protected boolean isSynchronized;
+    private boolean isSynchronized;
 
+//class
     //class
     {
         handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
@@ -43,8 +46,8 @@ public abstract class Buffer<T> {
         });
     }
 
-    public Buffer(ObjectConnection connection, Class<T> tClass) {
-        this.connection = connection;
+    public Buffer(Class<T> tClass, ObjectConnection... connections) {
+        this.connectionSet.addAll(Arrays.asList(connections));
         this.tClass = tClass;
     }
 
@@ -72,16 +75,26 @@ public abstract class Buffer<T> {
     }
 
     public Object update(BufferOperation operation, T obj) throws Exception {
-        connection.writeObject(operation);
-        connection.writeUnshared(obj);
-        connection.flush();
+        boolean result = true;
+        for (ObjectConnection connection : connectionSet) {
+            connection.writeObject(operation);
+            connection.writeUnshared(obj);
+            connection.flush();
 
-        Object result = connection.readObject();
-        if (result instanceof Exception) {
-            throw (Exception) result;
-        } else {
-            return result;
+            Object token = connection.readObject();
+            if (token instanceof Exception) {
+                throw (Exception) token;
+            } else {
+                if(token instanceof Boolean){
+                    result = result && (Boolean) token;
+                }
+                else{
+                    throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
+                }
+            }
         }
+
+        return result;
     }
 
     public boolean isSynchronized() {
@@ -135,13 +148,17 @@ public abstract class Buffer<T> {
 
         @Override
         protected void loop() throws Exception {
-            BufferOperation operation = (BufferOperation) connection.readObject();
-            Object obj = connection.readObject();
-            if (tClass.isAssignableFrom(obj.getClass())) {
-                T tObj = tClass.cast(obj);
-                Object result = handlerMap.get(operation).handle(tObj);
-                connection.writeObject(result);
-                connection.flush();
+            for (ObjectConnection connection : connectionSet) {
+                if (connection.hasData()) {
+                    BufferOperation operation = (BufferOperation) connection.readObject();
+                    Object obj = connection.readObject();
+                    if (tClass.isAssignableFrom(obj.getClass())) {
+                        T tObj = tClass.cast(obj);
+                        Object result = handlerMap.get(operation).handle(tObj);
+                        connection.writeObject(result);
+                        connection.flush();
+                    }
+                }
             }
         }
     }
