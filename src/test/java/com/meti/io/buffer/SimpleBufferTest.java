@@ -9,7 +9,7 @@ import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.handle.BufferedExceptionHandler;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.Socket;
@@ -22,7 +22,7 @@ import java.net.Socket;
 class SimpleBufferTest {
     private SimpleBuffer buffer2;
 
-    @RepeatedTest(5)
+    @Test
     public void test() throws Exception {
         Handler1 handler1 = new Handler1();
         Peer peer1 = new Peer(handler1);
@@ -36,14 +36,14 @@ class SimpleBufferTest {
         Peer peer2 = new Peer(handler2);
         peer2.initConnection(new Connection(socketSource));
 
-        if (handler1.getExceptionHandler().getMostRecent() != null) {
+        if (handler1.getExceptionHandler().hasNextException()) {
         } else {
-            throw handler1.getExceptionHandler().getMostRecent();
+            throw handler1.getExceptionHandler().getNextException();
         }
 
-        if (handler2.getExceptionHandler().getMostRecent() != null) {
+        if (handler2.getExceptionHandler().hasNextException()) {
         } else {
-            throw handler2.getExceptionHandler().getMostRecent();
+            throw handler2.getExceptionHandler().getNextException();
         }
     }
 

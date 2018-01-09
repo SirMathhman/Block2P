@@ -65,8 +65,8 @@ class ConnectionTest {
 
         Assertions.assertThrows(InterruptedIOException.class, () -> {
             BufferedExceptionHandler exceptionHandler = (BufferedExceptionHandler) runnable.getHandler();
-            if (exceptionHandler.getMostRecent() != null) {
-                throw exceptionHandler.getMostRecent();
+            if (exceptionHandler.hasNextException()) {
+                throw exceptionHandler.getNextException();
             }
         });
     }

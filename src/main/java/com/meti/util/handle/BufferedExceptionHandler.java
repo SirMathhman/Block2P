@@ -21,7 +21,11 @@ public class BufferedExceptionHandler extends ExceptionHandler {
     }
 
     //executed on listener thread
-    public Exception getMostRecent() {
+    public boolean hasNextException() {
+        return exceptionQueue.size() > 0;
+    }
+
+    public Exception getNextException() {
         return exceptionQueue.poll();
     }
 
