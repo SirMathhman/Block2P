@@ -51,6 +51,6 @@ class PeerTest {
 
         Source source = new Source(inputStream, outputStream);
         Connection connection = new Connection(source);
-        Assertions.assertTrue(peer.initConnection(connection).get());
+        Assertions.assertEquals(true, peer.initConnection(connection).get());
     }
 }
