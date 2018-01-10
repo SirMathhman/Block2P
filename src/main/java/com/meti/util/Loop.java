@@ -42,36 +42,22 @@ public abstract class Loop implements Runnable {
     @Override
     public void run() {
         running = true;
+
         try {
-            init();
-        } catch (Exception e) {
-            try {
-                handler.handle(e);
-            } catch (Exception e1) {
-                System.err.println("Cannot handle exception " + e1);
-                System.exit(-1);
-            }
-        }
-        while (running && !Thread.interrupted()) {
-            try {
+            start();
+            while (running && !Thread.interrupted()) {
                 loop();
-            } catch (Exception e) {
-                try {
-                    handler.handle(e);
-                } catch (Exception e1) {
-                    System.err.println("Cannot handle exception " + e1);
-                    System.exit(-1);
-                }
-                break;
             }
+            stop();
+        } catch (Exception e) {
+            handler.handle(e);
         }
     }
 
-    public void stop() {
-        setRunning(false);
+    protected void stop() {
     }
 
-    protected void init() {
+    protected void start() {
     }
 
     /**
@@ -80,6 +66,10 @@ public abstract class Loop implements Runnable {
      * @throws Exception If an Exception occurred.
      */
     protected abstract void loop() throws Exception;
+
+    public ExceptionHandler getHandler() {
+        return handler;
+    }
 
     public void setRunning(boolean running) {
         this.running = running;

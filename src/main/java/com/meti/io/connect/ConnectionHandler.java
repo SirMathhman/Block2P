@@ -11,5 +11,5 @@ import com.meti.util.handle.Handler;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public abstract class ConnectionHandler extends Handler<Connection, Boolean> {
+public abstract class ConnectionHandler extends Handler<Connection, Object> {
 }

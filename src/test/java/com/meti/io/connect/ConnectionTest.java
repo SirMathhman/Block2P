@@ -1,17 +1,19 @@
 package com.meti.io.connect;
 
 import com.meti.io.Peer;
-import com.meti.io.connect.connections.Connection;
 import com.meti.io.Source;
+import com.meti.io.connect.connections.Connection;
 import com.meti.util.Loop;
-import org.junit.jupiter.api.AfterAll;
+import com.meti.util.handle.BufferedExceptionHandler;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.time.Duration;
+import java.util.concurrent.Future;
 
 /**
  * @author SirMathhman
@@ -23,44 +25,59 @@ class ConnectionTest {
     private static final PipedOutputStream outputStream = new PipedOutputStream();
 
     private static Peer peer;
-    private static Connection connection;
 
     //methods
-    @BeforeAll
-    static void construct() throws IOException {
-        ConnectionHandler handler = new ConnectionHandler() {
-            @Override
-            public Boolean handleImpl(Connection obj) {
-                return true;
-            }
-        };
-        peer = new Peer(handler);
-
+    @Test
+    void construct() throws Exception {
         inputStream.connect(outputStream);
 
-        Source source = new Source(inputStream, outputStream);
-        connection = new Connection(source);
+        ConnectionTestRunnable runnable = new ConnectionTestRunnable();
+        Thread runnableThread = new Thread(runnable);
+        runnableThread.start();
 
-        new Thread(new ConnectionTestRunnable()).start();
-    }
+        ConnectionHandler handler = new ConnectionHandler() {
+            @Override
+            public Object handleImpl(Connection connection) {
+                try {
+                    connection.write(100);
+                    connection.flush();
+                    Assertions.assertEquals(100, connection.read());
 
-    @AfterAll
-    static void deconstruct() throws IOException {
-        peer.close();
-    }
+                    connection.close();
+                    return true;
+                } catch (IOException e) {
+                    return e;
+                }
+            }
+        };
 
-    @Test
-    void stream() throws IOException {
-        connection.write(100);
-        connection.flush();
-        Assertions.assertEquals(100, connection.read());
+        peer = new Peer(handler);
+        Future<Object> connectionFuture = peer.initConnection(new Connection(new Source(inputStream, outputStream)));
+        Assertions.assertEquals(true, connectionFuture.get());
+        Assertions.assertTimeout(Duration.ofSeconds(5), () -> {
+            peer.close();
+            runnable.setRunning(false);
+            if (runnableThread.isAlive()) {
+                runnableThread.interrupt();
+                runnableThread.join();
+            }
+        });
 
-        connection.close();
+        Assertions.assertThrows(InterruptedIOException.class, () -> {
+            BufferedExceptionHandler exceptionHandler = (BufferedExceptionHandler) runnable.getHandler();
+            if (exceptionHandler.hasNextException()) {
+                throw exceptionHandler.getNextException();
+            }
+        });
     }
 
     private static class ConnectionTestRunnable extends Loop {
+        public ConnectionTestRunnable() {
+            super(new BufferedExceptionHandler());
+        }
+
         @Override
-        protected void loop() throws Exception {
+        protected void loop() throws IOException {
             int b = inputStream.read();
             outputStream.write(b);
             outputStream.flush();

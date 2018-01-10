@@ -109,13 +109,13 @@ public class Peer implements Closeable {
      * @param connection The connection.
      * @return A Future indicating the result of the connection. If it is true, the connection was established and handled successfully, otherwise false.
      */
-    public Future<Boolean> initConnection(final Connection connection) {
+    public Future<Object> initConnection(final Connection connection) {
         connectionSet.add(connection);
 
-        Callable<Boolean> callable = () -> handler.handle(connection);
-        Future<Boolean> future;
+        Callable<Object> callable = () -> handler.handle(connection);
+        Future<Object> future;
         if (service == null) {
-            FutureTask<Boolean> task = new FutureTask<>(callable);
+            FutureTask<Object> task = new FutureTask<>(callable);
             new Thread(task).start();
 
             future = task;

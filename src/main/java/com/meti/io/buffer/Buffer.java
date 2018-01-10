@@ -178,7 +178,7 @@ public class Buffer<T> {
 
     private class BufferLoop extends Loop {
         @Override
-        protected void init() {
+        protected void start() {
             open = true;
         }
 
