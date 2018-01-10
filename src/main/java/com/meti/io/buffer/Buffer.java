@@ -49,16 +49,6 @@ public class Buffer<T> {
                 return null;
             }
         });
-        handlerMap.put(BufferOperation.CLOSE, new Handler<T, Object>() {
-            @Override
-            public Object handleImpl(T obj) {
-                try {
-                    return closeImpl(true);
-                } catch (Exception e) {
-                    return e;
-                }
-            }
-        });
     }
 
     public Buffer(Class<T> tClass, ObjectConnection... connections) {
@@ -154,18 +144,8 @@ public class Buffer<T> {
         } while (shouldContinue);
     }
 
-    public void close() throws Exception {
-        closeImpl(false);
-    }
-
-    public Object closeImpl(boolean remote) throws Exception {
+    public void close() {
         loop.setRunning(false);
-
-        if (!remote) {
-            update(BufferOperation.CLOSE, null);
-        }
-
-        return null;
     }
 
     //anonymous
@@ -173,7 +153,6 @@ public class Buffer<T> {
         ADD,
         REMOVE,
         CLEAR,
-        CLOSE
     }
 
     private class BufferLoop extends Loop {
