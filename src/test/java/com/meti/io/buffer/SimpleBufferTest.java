@@ -37,12 +37,10 @@ class SimpleBufferTest {
         peer2.initConnection(new Connection(socketSource));
 
         if (handler1.getExceptionHandler().hasNextException()) {
-        } else {
             throw handler1.getExceptionHandler().getNextException();
         }
 
         if (handler2.getExceptionHandler().hasNextException()) {
-        } else {
             throw handler2.getExceptionHandler().getNextException();
         }
     }
