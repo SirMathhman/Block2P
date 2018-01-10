@@ -49,17 +49,8 @@ class BufferTest {
         private final BufferedExceptionHandler handler = new BufferedExceptionHandler();
 
         @Override
-        public Object handleThrows(Connection obj) {
-            buffer2 = new SimpleBuffer((ObjectConnection) obj);
-            buffer2.open();
-            return true;
-        }
-    }
-
-    private class Handler2 extends ConnectionHandler {
-        @Override
         public Object handleThrows(Connection obj) throws Exception {
-            SimpleBuffer buffer1 = new SimpleBuffer(new ObjectConnection(obj));
+            SimpleBuffer buffer1 = new SimpleBuffer((ObjectConnection) obj);
             buffer1.open();
 
             buffer1.add(100);
@@ -71,6 +62,16 @@ class BufferTest {
 
             buffer1.clear();
             Assertions.assertTrue(buffer2.isEmpty());
+
+            return true;
+        }
+    }
+
+    private class Handler2 extends ConnectionHandler {
+        @Override
+        public Object handleThrows(Connection obj) {
+            buffer2 = new SimpleBuffer((ObjectConnection) obj);
+            buffer2.open();
 
             return true;
         }
