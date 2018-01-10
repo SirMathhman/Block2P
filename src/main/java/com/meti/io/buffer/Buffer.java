@@ -4,26 +4,26 @@ import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 import com.meti.util.handle.Handler;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
  */
-public class Buffer<T> {
+public class Buffer<T> implements Iterable<T> {
     private final Set<ObjectConnection> connectionSet = new HashSet<>();
     private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
-    private final HashSet<T> set = new HashSet<>();
+    private final HashSet<T> contents = new HashSet<>();
     private final Class<T> tClass;
 
     private boolean open;
     private Loop loop;
 
+    //class
+    //class
     //class
 //class
     //class
@@ -33,19 +33,19 @@ public class Buffer<T> {
         handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.add(obj);
+                return contents.add(obj);
             }
         });
         handlerMap.put(BufferOperation.REMOVE, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.remove(obj);
+                return contents.remove(obj);
             }
         });
         handlerMap.put(BufferOperation.CLEAR, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                set.clear();
+                contents.clear();
                 return null;
             }
         });
@@ -56,27 +56,23 @@ public class Buffer<T> {
         this.tClass = tClass;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return contents.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super T> action) {
+        contents.forEach(action);
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+        return contents.spliterator();
+    }
+
     public int size() {
-        return set.size();
-    }
-
-    public boolean isEmpty() {
-        return set.isEmpty();
-    }
-
-    public boolean contains(T o) {
-        return set.contains(o);
-    }
-
-    //changing the buffer
-    public boolean add(T t) throws Exception {
-        if (!isOpen()) {
-            throw new IllegalStateException("Connections are not open.");
-        }
-
-        Object to = update(BufferOperation.ADD, t);
-        Object from = set.add(t);
-        return !from.equals(to);
+        return contents.size();
     }
 
     public Object update(BufferOperation operation, T obj) throws Exception {
@@ -105,23 +101,12 @@ public class Buffer<T> {
         return open;
     }
 
-    public boolean remove(T o) throws Exception {
-        if (!isOpen()) {
-            throw new IllegalStateException("Connections are not open.");
-        }
-
-        Object to = update(BufferOperation.REMOVE, o);
-        Object from = set.remove(o);
-        return !from.equals(to);
+    public boolean isEmpty() {
+        return contents.isEmpty();
     }
 
-    public void clear() throws Exception {
-        if (!isOpen()) {
-            throw new IllegalStateException("Connections are not open.");
-        }
-
-        update(BufferOperation.CLEAR, null);
-        set.clear();
+    public boolean contains(T o) {
+        return contents.contains(o);
     }
 
     public void open() {
@@ -146,6 +131,46 @@ public class Buffer<T> {
 
     public void close() {
         loop.setRunning(false);
+    }
+
+    //changing the buffer
+    public boolean add(T t) throws Exception {
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
+        }
+
+        Object to = update(BufferOperation.ADD, t);
+        Object from = contents.add(t);
+        return !from.equals(to);
+    }
+
+    public boolean remove(T o) throws Exception {
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
+        }
+
+        Object to = update(BufferOperation.REMOVE, o);
+        Object from = contents.remove(o);
+        return !from.equals(to);
+    }
+
+    public void clear() throws Exception {
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
+        }
+
+        update(BufferOperation.CLEAR, null);
+        contents.clear();
+    }
+
+    public boolean containsOne(Set<T> items) {
+        for (T item : items) {
+            if (contents.contains(item)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //anonymous
