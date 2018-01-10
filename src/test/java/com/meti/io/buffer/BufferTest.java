@@ -19,7 +19,7 @@ import java.net.Socket;
  * @version 0.0.0
  * @since 1/4/2018
  */
-class SimpleBufferTest {
+class BufferTest {
     private SimpleBuffer buffer2;
 
     @Test
