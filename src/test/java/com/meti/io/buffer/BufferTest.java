@@ -77,9 +77,16 @@ class BufferTest {
             try {
                 SimpleBuffer buffer1 = new SimpleBuffer(new ObjectConnection(obj));
                 buffer1.open();
-                buffer1.add(100);
 
+                buffer1.add(100);
+                buffer1.add(3000);
                 Assertions.assertTrue(buffer2.contains(100));
+
+                buffer1.remove(3000);
+                Assertions.assertFalse(buffer2.contains(3000));
+
+                buffer1.clear();
+                Assertions.assertTrue(buffer2.isEmpty());
 
                 return true;
             } catch (Exception e) {
@@ -87,7 +94,5 @@ class BufferTest {
                 return false;
             }
         }
-
-
     }
 }
