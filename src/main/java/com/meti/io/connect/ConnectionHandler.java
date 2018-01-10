@@ -2,7 +2,7 @@ package com.meti.io.connect;
 
 import com.meti.io.Peer;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.handle.Handler;
+import com.meti.util.handle.ThrowableHandler;
 
 /**
  * Pseudo-implementation of Handler that specifies a strict implementation for a Peer.
@@ -11,5 +11,5 @@ import com.meti.util.handle.Handler;
  * @version 0.0.0
  * @since 1/2/2018
  */
-public abstract class ConnectionHandler extends Handler<Connection, Object> {
+public abstract class ConnectionHandler extends ThrowableHandler<Connection, Object> {
 }
