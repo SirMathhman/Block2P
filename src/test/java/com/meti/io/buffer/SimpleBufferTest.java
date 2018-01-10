@@ -53,7 +53,7 @@ class SimpleBufferTest {
         @Override
         public Boolean handleImpl(Connection obj) {
             try {
-                buffer2 = new SimpleBuffer(new ObjectConnection(obj));
+                buffer2 = new SimpleBuffer((ObjectConnection) obj);
                 buffer2.open();
                 return true;
             } catch (Exception e) {
