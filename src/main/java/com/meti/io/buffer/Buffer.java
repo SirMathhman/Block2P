@@ -2,6 +2,7 @@ package com.meti.io.buffer;
 
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
+import com.meti.util.event.EventManager;
 import com.meti.util.handle.Handler;
 
 import java.util.*;
@@ -19,33 +20,27 @@ public class Buffer<T> implements Iterable<T> {
     private final HashSet<T> contents = new HashSet<>();
     private final Class<T> tClass;
 
+    private final EventManager manager = new EventManager();
     private boolean open;
     private Loop loop;
 
-    //class
-    //class
-    //class
-//class
-    //class
-    //class
-    //class
     {
         handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return contents.add(obj);
+                return addImpl(obj);
             }
         });
         handlerMap.put(BufferOperation.REMOVE, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return contents.remove(obj);
+                return removeImpl(obj);
             }
         });
         handlerMap.put(BufferOperation.CLEAR, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                contents.clear();
+                clearImpl();
                 return null;
             }
         });
@@ -54,6 +49,10 @@ public class Buffer<T> implements Iterable<T> {
     public Buffer(Class<T> tClass, ObjectConnection... connections) {
         this.connectionSet.addAll(Arrays.asList(connections));
         this.tClass = tClass;
+    }
+
+    public EventManager getManager() {
+        return manager;
     }
 
     @Override
@@ -73,32 +72,6 @@ public class Buffer<T> implements Iterable<T> {
 
     public int size() {
         return contents.size();
-    }
-
-    public Object update(BufferOperation operation, T obj) throws Exception {
-        boolean result = true;
-        for (ObjectConnection connection : connectionSet) {
-            connection.writeObject(operation);
-            connection.writeUnshared(obj);
-            connection.flush();
-
-            Object token = connection.readObject();
-            if (token instanceof Exception) {
-                throw (Exception) token;
-            } else {
-                if (token instanceof Boolean) {
-                    result = result && (Boolean) token;
-                } else {
-                    throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public boolean isOpen() {
-        return open;
     }
 
     public boolean isEmpty() {
@@ -140,8 +113,40 @@ public class Buffer<T> implements Iterable<T> {
         }
 
         Object to = update(BufferOperation.ADD, t);
-        Object from = contents.add(t);
+        Object from = addImpl(t);
         return !from.equals(to);
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public Object update(BufferOperation operation, T obj) throws Exception {
+        boolean result = true;
+        for (ObjectConnection connection : connectionSet) {
+            connection.writeObject(operation);
+            connection.writeUnshared(obj);
+            connection.flush();
+
+            Object token = connection.readObject();
+            if (token instanceof Exception) {
+                throw (Exception) token;
+            } else {
+                if (token instanceof Boolean) {
+                    result = result && (Boolean) token;
+                } else {
+                    throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private boolean addImpl(T e) {
+        manager.handle(EVENT.ON_ADD, e);
+
+        return contents.add(e);
     }
 
     public boolean remove(T o) throws Exception {
@@ -150,8 +155,14 @@ public class Buffer<T> implements Iterable<T> {
         }
 
         Object to = update(BufferOperation.REMOVE, o);
-        Object from = contents.remove(o);
+        Object from = removeImpl(o);
         return !from.equals(to);
+    }
+
+    private boolean removeImpl(T e) {
+        manager.handle(EVENT.ON_REMOVE, e);
+
+        return contents.remove(e);
     }
 
     public void clear() throws Exception {
@@ -160,6 +171,12 @@ public class Buffer<T> implements Iterable<T> {
         }
 
         update(BufferOperation.CLEAR, null);
+        clearImpl();
+    }
+
+    private void clearImpl() {
+        manager.handle(EVENT.ON_CLEAR);
+
         contents.clear();
     }
 
@@ -171,6 +188,11 @@ public class Buffer<T> implements Iterable<T> {
         }
 
         return false;
+    }
+
+    public enum EVENT {
+        ON_REMOVE, ON_CLEAR, ON_ADD
+
     }
 
     //anonymous
