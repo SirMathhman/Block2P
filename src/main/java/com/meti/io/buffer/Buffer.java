@@ -2,61 +2,46 @@ package com.meti.io.buffer;
 
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
+import com.meti.util.event.EventManager;
 import com.meti.util.handle.Handler;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
  */
-public class Buffer<T> {
+public class Buffer<T> implements Iterable<T> {
     private final Set<ObjectConnection> connectionSet = new HashSet<>();
     private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
-    private final HashSet<T> set = new HashSet<>();
+    private final HashSet<T> contents = new HashSet<>();
     private final Class<T> tClass;
 
+    private final EventManager manager = new EventManager();
     private boolean open;
     private Loop loop;
 
-    //class
-//class
-    //class
-    //class
-    //class
     {
         handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.add(obj);
+                return addImpl(obj);
             }
         });
         handlerMap.put(BufferOperation.REMOVE, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.remove(obj);
+                return removeImpl(obj);
             }
         });
         handlerMap.put(BufferOperation.CLEAR, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                set.clear();
+                clearImpl();
                 return null;
-            }
-        });
-        handlerMap.put(BufferOperation.CLOSE, new Handler<T, Object>() {
-            @Override
-            public Object handleImpl(T obj) {
-                try {
-                    return closeImpl(true);
-                } catch (Exception e) {
-                    return e;
-                }
             }
         });
     }
@@ -66,16 +51,59 @@ public class Buffer<T> {
         this.tClass = tClass;
     }
 
+    public EventManager getManager() {
+        return manager;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return contents.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super T> action) {
+        contents.forEach(action);
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+        return contents.spliterator();
+    }
+
     public int size() {
-        return set.size();
+        return contents.size();
     }
 
     public boolean isEmpty() {
-        return set.isEmpty();
+        return contents.isEmpty();
     }
 
     public boolean contains(T o) {
-        return set.contains(o);
+        return contents.contains(o);
+    }
+
+    public void open() {
+        open(null);
+    }
+
+    public void open(ExecutorService service) {
+        loop = new BufferLoop();
+        if (service == null) {
+            new Thread(loop).start();
+        } else {
+            service.submit(loop);
+        }
+    }
+
+    public void awaitUntilSynchronized() {
+        boolean shouldContinue;
+        do {
+            shouldContinue = !open;
+        } while (shouldContinue);
+    }
+
+    public void close() {
+        loop.setRunning(false);
     }
 
     //changing the buffer
@@ -85,8 +113,12 @@ public class Buffer<T> {
         }
 
         Object to = update(BufferOperation.ADD, t);
-        Object from = set.add(t);
+        Object from = addImpl(t);
         return !from.equals(to);
+    }
+
+    public boolean isOpen() {
+        return open;
     }
 
     public Object update(BufferOperation operation, T obj) throws Exception {
@@ -111,8 +143,10 @@ public class Buffer<T> {
         return result;
     }
 
-    public boolean isOpen() {
-        return open;
+    private boolean addImpl(T e) {
+        manager.handle(EVENT.ON_ADD, e);
+
+        return contents.add(e);
     }
 
     public boolean remove(T o) throws Exception {
@@ -121,8 +155,14 @@ public class Buffer<T> {
         }
 
         Object to = update(BufferOperation.REMOVE, o);
-        Object from = set.remove(o);
+        Object from = removeImpl(o);
         return !from.equals(to);
+    }
+
+    private boolean removeImpl(T e) {
+        manager.handle(EVENT.ON_REMOVE, e);
+
+        return contents.remove(e);
     }
 
     public void clear() throws Exception {
@@ -131,41 +171,28 @@ public class Buffer<T> {
         }
 
         update(BufferOperation.CLEAR, null);
-        set.clear();
+        clearImpl();
     }
 
-    public void open() {
-        open(null);
+    private void clearImpl() {
+        manager.handle(EVENT.ON_CLEAR);
+
+        contents.clear();
     }
 
-    public void open(ExecutorService service) {
-        loop = new BufferLoop();
-        if (service == null) {
-            new Thread(loop).start();
-        } else {
-            service.submit(loop);
-        }
-    }
-
-    public void awaitUntilSynchronized() {
-        boolean shouldContinue;
-        do {
-            shouldContinue = !open;
-        } while (shouldContinue);
-    }
-
-    public void close() throws Exception {
-        closeImpl(false);
-    }
-
-    public Object closeImpl(boolean remote) throws Exception {
-        loop.setRunning(false);
-
-        if (!remote) {
-            update(BufferOperation.CLOSE, null);
+    public boolean containsOne(Set<T> items) {
+        for (T item : items) {
+            if (contents.contains(item)) {
+                return true;
+            }
         }
 
-        return null;
+        return false;
+    }
+
+    public enum EVENT {
+        ON_REMOVE, ON_CLEAR, ON_ADD
+
     }
 
     //anonymous
@@ -173,7 +200,6 @@ public class Buffer<T> {
         ADD,
         REMOVE,
         CLEAR,
-        CLOSE
     }
 
     private class BufferLoop extends Loop {

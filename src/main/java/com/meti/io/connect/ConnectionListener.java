@@ -4,8 +4,8 @@ import com.meti.io.Peer;
 import com.meti.io.Source;
 import com.meti.io.Sources;
 import com.meti.io.connect.connections.Connection;
-import com.meti.util.event.EventManager;
 import com.meti.util.Loop;
+import com.meti.util.event.EventManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class ConnectionListener implements Closeable {
      * @param port    The port.
      * @param parent  The peer.
      * @param service The service.
-     * @throws IOException If an Exception occured when hosting on the port.
+     * @throws IOException If an Exception occurred when hosting on the port.
      */
     public ConnectionListener(int port, Peer parent, ExecutorService service) throws IOException {
         this.serverSocket = new ServerSocket(port);

@@ -36,12 +36,12 @@ class BufferTest {
         Peer peer2 = new Peer(handler2);
         peer2.initConnection(new Connection(socketSource));
 
-        if (handler1.getExceptionHandler().hasNextException()) {
-            throw handler1.getExceptionHandler().getNextException();
+        if (handler1.getHandler().hasNextException()) {
+            throw handler1.getHandler().getNextException();
         }
 
-        if (handler2.getExceptionHandler().hasNextException()) {
-            throw handler2.getExceptionHandler().getNextException();
+        if (handler2.getHandler().hasNextException()) {
+            throw handler2.getHandler().getNextException();
         }
     }
 
@@ -49,50 +49,31 @@ class BufferTest {
         private final BufferedExceptionHandler handler = new BufferedExceptionHandler();
 
         @Override
-        public Boolean handleImpl(Connection obj) {
-            try {
-                buffer2 = new SimpleBuffer((ObjectConnection) obj);
-                buffer2.open();
-                return true;
-            } catch (Exception e) {
-                handler.handle(e);
-                return false;
-            }
-        }
+        public Object handleThrows(Connection obj) throws Exception {
+            SimpleBuffer buffer1 = new SimpleBuffer((ObjectConnection) obj);
+            buffer1.open();
 
-        public BufferedExceptionHandler getExceptionHandler() {
-            return handler;
+            buffer1.add(100);
+            buffer1.add(3000);
+            Assertions.assertTrue(buffer2.contains(100));
+
+            buffer1.remove(3000);
+            Assertions.assertFalse(buffer2.contains(3000));
+
+            buffer1.clear();
+            Assertions.assertTrue(buffer2.isEmpty());
+
+            return true;
         }
     }
 
     private class Handler2 extends ConnectionHandler {
-        private final BufferedExceptionHandler handler = new BufferedExceptionHandler();
-
-        public BufferedExceptionHandler getExceptionHandler() {
-            return handler;
-        }
-
         @Override
-        public Boolean handleImpl(Connection obj) {
-            try {
-                SimpleBuffer buffer1 = new SimpleBuffer(new ObjectConnection(obj));
-                buffer1.open();
+        public Object handleThrows(Connection obj) {
+            buffer2 = new SimpleBuffer((ObjectConnection) obj);
+            buffer2.open();
 
-                buffer1.add(100);
-                buffer1.add(3000);
-                Assertions.assertTrue(buffer2.contains(100));
-
-                buffer1.remove(3000);
-                Assertions.assertFalse(buffer2.contains(3000));
-
-                buffer1.clear();
-                Assertions.assertTrue(buffer2.isEmpty());
-
-                return true;
-            } catch (Exception e) {
-                handler.handle(e);
-                return false;
-            }
+            return true;
         }
     }
 }
