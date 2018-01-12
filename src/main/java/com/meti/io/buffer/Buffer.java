@@ -5,18 +5,20 @@ import com.meti.util.Loop;
 import com.meti.util.event.EventManager;
 import com.meti.util.handle.Handler;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 /**
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
  */
-public class Buffer<T> implements Iterable<T> {
+public class Buffer<T> {
     private final Set<ObjectConnection> connectionSet = new HashSet<>();
-    private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
+    private final HashMap<BUFFER_OPERATION, Handler<T, Object>> handlerMap = new HashMap<>();
     private final HashSet<T> contents = new HashSet<>();
     private final Class<T> tClass;
 
@@ -24,20 +26,21 @@ public class Buffer<T> implements Iterable<T> {
     private boolean open;
     private Loop loop;
 
+    //class
     {
-        handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.ADD, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
                 return addImpl(obj);
             }
         });
-        handlerMap.put(BufferOperation.REMOVE, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.REMOVE, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
                 return removeImpl(obj);
             }
         });
-        handlerMap.put(BufferOperation.CLEAR, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.CLEAR, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
                 clearImpl();
@@ -55,73 +58,28 @@ public class Buffer<T> implements Iterable<T> {
         return manager;
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        return contents.iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super T> action) {
-        contents.forEach(action);
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        return contents.spliterator();
-    }
-
-    public int size() {
-        return contents.size();
-    }
-
-    public boolean isEmpty() {
-        return contents.isEmpty();
-    }
-
-    public boolean contains(T o) {
-        return contents.contains(o);
-    }
-
-    public void open() {
-        open(null);
-    }
-
-    public void open(ExecutorService service) {
-        loop = new BufferLoop();
-        if (service == null) {
-            new Thread(loop).start();
-        } else {
-            service.submit(loop);
-        }
-    }
-
-    public void awaitUntilSynchronized() {
-        boolean shouldContinue;
-        do {
-            shouldContinue = !open;
-        } while (shouldContinue);
-    }
-
-    public void close() {
-        loop.setRunning(false);
-    }
-
     //changing the buffer
     public boolean add(T t) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        Object to = update(BufferOperation.ADD, t);
+        Object to = update(BUFFER_OPERATION.ADD, t);
         Object from = addImpl(t);
         return !from.equals(to);
+    }
+
+    private boolean addImpl(T e) {
+        manager.handle(EVENT.ON_ADD, e);
+
+        return contents.add(e);
     }
 
     public boolean isOpen() {
         return open;
     }
 
-    public Object update(BufferOperation operation, T obj) throws Exception {
+    private Object update(BUFFER_OPERATION operation, T obj) throws Exception {
         boolean result = true;
         for (ObjectConnection connection : connectionSet) {
             connection.writeObject(operation);
@@ -143,18 +101,12 @@ public class Buffer<T> implements Iterable<T> {
         return result;
     }
 
-    private boolean addImpl(T e) {
-        manager.handle(EVENT.ON_ADD, e);
-
-        return contents.add(e);
-    }
-
     public boolean remove(T o) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        Object to = update(BufferOperation.REMOVE, o);
+        Object to = update(BUFFER_OPERATION.REMOVE, o);
         Object from = removeImpl(o);
         return !from.equals(to);
     }
@@ -170,7 +122,7 @@ public class Buffer<T> implements Iterable<T> {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        update(BufferOperation.CLEAR, null);
+        update(BUFFER_OPERATION.CLEAR, null);
         clearImpl();
     }
 
@@ -190,13 +142,42 @@ public class Buffer<T> implements Iterable<T> {
         return false;
     }
 
-    public enum EVENT {
-        ON_REMOVE, ON_CLEAR, ON_ADD
-
+    public boolean contains(T o) {
+        return contents.contains(o);
     }
 
+    public boolean isEmpty() {
+        return contents.isEmpty();
+    }
+
+    public int size() {
+        return contents.size();
+    }
+
+    public void open() {
+        open(null);
+    }
+
+    public void open(ExecutorService service) {
+        loop = new BufferLoop();
+        if (service == null) {
+            new Thread(loop).start();
+        } else {
+            service.submit(loop);
+        }
+    }
+
+    public void close() {
+        loop.setRunning(false);
+    }
+
+
     //anonymous
-    private enum BufferOperation {
+    public enum EVENT {
+        ON_REMOVE, ON_CLEAR, ON_ADD
+    }
+
+    private enum BUFFER_OPERATION {
         ADD,
         REMOVE,
         CLEAR,
@@ -214,7 +195,7 @@ public class Buffer<T> implements Iterable<T> {
                 for (ObjectConnection connection : connectionSet) {
                     if (!connection.isClosed() && connection.hasData()) {
                         Object token = connection.readObject();
-                        BufferOperation operation = (BufferOperation) token;
+                        BUFFER_OPERATION operation = (BUFFER_OPERATION) token;
                         Object obj = connection.readObject();
                         if (tClass.isAssignableFrom(obj.getClass())) {
                             T tObj = tClass.cast(obj);
