@@ -26,7 +26,7 @@ class PeerTest {
     void before() {
         ConnectionHandler handler = new ConnectionHandler() {
             @Override
-            public Boolean handleImpl(Connection obj) {
+            public Boolean handleThrows(Connection obj) {
                 return true;
             }
         };

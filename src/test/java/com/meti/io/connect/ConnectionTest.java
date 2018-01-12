@@ -37,7 +37,7 @@ class ConnectionTest {
 
         ConnectionHandler handler = new ConnectionHandler() {
             @Override
-            public Object handleImpl(Connection connection) {
+            public Object handleThrows(Connection connection) {
                 try {
                     connection.write(100);
                     connection.flush();

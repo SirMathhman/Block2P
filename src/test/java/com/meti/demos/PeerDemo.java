@@ -59,7 +59,7 @@ public class PeerDemo {
 
     private static class FromHandler extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) {
+        public Boolean handleThrows(Connection obj) {
             try {
                 System.out.println("Connected!");
                 obj.close();
@@ -73,7 +73,7 @@ public class PeerDemo {
 
     private static class ToHandler extends ConnectionHandler {
         @Override
-        public Boolean handleImpl(Connection obj) {
+        public Boolean handleThrows(Connection obj) {
             try {
                 System.out.println("Found a connection!");
                 obj.close();
