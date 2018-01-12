@@ -14,6 +14,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * <p>
+ *     A Buffer contains a Set of objects that can be shared across multiple connections.
+ *     The Buffer will become synchronized with other buffers.
+ * </p>
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
@@ -28,12 +32,7 @@ public class Buffer<T> {
     private boolean open;
     private Loop loop;
 
-    //class
 //class
-    //class
-    //class
-    //class
-    //class
     {
         handlerMap.put(BUFFER_OPERATION.ADD, new Handler<T, Object>() {
             @Override
@@ -106,14 +105,23 @@ public class Buffer<T> {
     }
 
     /**
+     * Gets the internal EventManager.
      *
-     * @return
+     * @return The internal EventManager.
      */
     public EventManager getManager() {
         return manager;
     }
 
     //changing the buffer
+
+    /**
+     * Adds an object to the buffer.
+     *
+     * @param t The object.
+     * @return If it was added successfully to all the buffers.
+     * @throws Exception If an error occurred with updating the other buffers.
+     */
     public boolean add(T t) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
@@ -130,6 +138,11 @@ public class Buffer<T> {
         return contents.add(e);
     }
 
+    /**
+     * Returns if the buffer is open and listening for connections.
+     *
+     * @return The state.
+     */
     public boolean isOpen() {
         return open;
     }
@@ -156,6 +169,13 @@ public class Buffer<T> {
         return result;
     }
 
+    /**
+     * Removes an object from the buffer.
+     *
+     * @param o The object.
+     * @return If it was successfully added to the other buffers.
+     * @throws Exception If an Exception occurred with updating the other buffers.
+     */
     public boolean remove(T o) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
@@ -172,6 +192,11 @@ public class Buffer<T> {
         return contents.remove(e);
     }
 
+    /**
+     * Clears the buffer.
+     *
+     * @throws Exception If an Exception occurred with updating the other buffers.
+     */
     public void clear() throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
@@ -187,9 +212,15 @@ public class Buffer<T> {
         contents.clear();
     }
 
+    /**
+     * Returns true if the buffer contains at least one of the items specified.
+     *
+     * @param items The items to search through.
+     * @return The state.
+     */
     public boolean containsOne(Set<T> items) {
         for (T item : items) {
-            if (contents.contains(item)) {
+            if (contains(item)) {
                 return true;
             }
         }
@@ -197,22 +228,48 @@ public class Buffer<T> {
         return false;
     }
 
+    /**
+     * Returns true if the buffer contains the item specified.
+     *
+     * @param o The item.
+     * @return The state.
+     */
     public boolean contains(T o) {
         return contents.contains(o);
     }
 
+    /**
+     * Returns true if the buffer is empty.
+     *
+     * @return The state.
+     */
     public boolean isEmpty() {
         return contents.isEmpty();
     }
 
+    /**
+     * Returns the size of the buffer.
+     *
+     * @return The size of the buffer.
+     */
     public int size() {
         return contents.size();
     }
 
+    /**
+     * Opens the buffer without using an ExecutorService,
+     * and begins to listen for changes from other buffers.
+     */
     public void open() {
         open(null);
     }
 
+    /**
+     * Opens the buffer using an ExecutorService,
+     * and begins to listen for changes from other buffers.
+     *
+     * @param service The service.
+     */
     public void open(ExecutorService service) {
         loop = new BufferLoop();
         if (service == null) {
@@ -222,6 +279,13 @@ public class Buffer<T> {
         }
     }
 
+    /**
+     * Closes the buffer.
+     * The buffer stops listening from connections.
+     * All connections are terminated.
+     *
+     * @throws IOException If an Exception occurred with closing one of the connections.
+     */
     public void close() throws IOException {
         loop.setRunning(false);
 
@@ -231,7 +295,13 @@ public class Buffer<T> {
     }
 
 
-    //anonymous
+//anonymous
+
+    /**
+     * Types of Events that the Buffer can handle.
+     *
+     * @see {@link #getManager()}
+     */
     public enum EVENT {
         ON_REMOVE, ON_CLEAR, ON_ADD
     }
