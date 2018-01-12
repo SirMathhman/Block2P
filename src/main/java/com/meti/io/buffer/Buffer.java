@@ -1,10 +1,12 @@
 package com.meti.io.buffer;
 
+import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 import com.meti.util.event.EventManager;
 import com.meti.util.handle.Handler;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +28,11 @@ public class Buffer<T> {
     private boolean open;
     private Loop loop;
 
+    //class
+//class
+    //class
+    //class
+    //class
     //class
     {
         handlerMap.put(BUFFER_OPERATION.ADD, new Handler<T, Object>() {
@@ -49,11 +56,59 @@ public class Buffer<T> {
         });
     }
 
+    /**
+     * <p>
+     * Constructs a Buffer using an internal HashSet of type tClass and an initial array of connections.
+     * tClass is the generic class that casts the incoming changes from other buffers.
+     * The initial array of connections provided is not limited to be less than two.
+     * These connections will be listened to when the {@link #open} method is declared.
+     * </p>
+     *
+     * @param tClass      The generic class to instantiate.
+     * @param connections The initial array of connections.
+     * @see HashSet
+     */
     public Buffer(Class<T> tClass, ObjectConnection... connections) {
         this.connectionSet.addAll(Arrays.asList(connections));
         this.tClass = tClass;
     }
 
+    /**
+     * Adds an array of connections to the internal set of connections.
+     * The array of connections can have zero, one, or more than two elements.
+     * These connections will then be listened to.
+     *
+     * @param connections The connections.
+     * @return If the internal set changed successfully.
+     */
+    public boolean addConnections(ObjectConnection... connections) {
+        return this.connectionSet.addAll(Arrays.asList(connections));
+    }
+
+    /**
+     * Removes an array of connections from the internal set of connections.
+     * The array of connections can have zero, one, or more than two elements.
+     * These connections will then be no longer listened to.
+     *
+     * @param connections The connections.
+     * @return If the internal set changed successfully.
+     */
+    public boolean removeConnections(ObjectConnection... connections) {
+        return this.connectionSet.removeAll(Arrays.asList(connections));
+    }
+
+    /**
+     * Clears the internal set of connections.
+     * All connections will then no longer be listened to.
+     */
+    public void clearConnections() {
+        this.connectionSet.clear();
+    }
+
+    /**
+     *
+     * @return
+     */
     public EventManager getManager() {
         return manager;
     }
@@ -167,8 +222,12 @@ public class Buffer<T> {
         }
     }
 
-    public void close() {
+    public void close() throws IOException {
         loop.setRunning(false);
+
+        for (Connection connection : connectionSet) {
+            connection.close();
+        }
     }
 
 
