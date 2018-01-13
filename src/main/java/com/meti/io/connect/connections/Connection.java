@@ -2,6 +2,7 @@ package com.meti.io.connect.connections;
 
 import com.meti.io.Source;
 import com.meti.util.event.EventManager;
+import com.meti.util.event.Managable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.io.OutputStream;
  * @see Source
  * @since 1/2/2018
  */
-public class Connection implements Closeable {
+public class Connection implements Closeable, Managable {
     private final EventManager manager = new EventManager();
     private final Source source;
 
@@ -38,7 +39,12 @@ public class Connection implements Closeable {
     public void close() throws IOException {
         source.close();
 
-        manager.handle(PROPERTIES.ON_CLOSED, this);
+        manager.handle(EVENTS.ON_CLOSED, this);
+    }
+
+    @Override
+    public EventManager getManager() {
+        return manager;
     }
 
     /**
@@ -57,6 +63,15 @@ public class Connection implements Closeable {
         if (isClosed()) {
             throw new IllegalStateException("Connection is closed.");
         }
+    }
+
+    /**
+     * Returns if the connection is closed.
+     *
+     * @return The state.
+     */
+    public boolean isClosed() {
+        return source.isClosed();
     }
 
     /**
@@ -92,20 +107,22 @@ public class Connection implements Closeable {
         return source;
     }
 
-    public EventManager getManager() {
-        return manager;
-    }
-
-    public boolean isClosed() {
-        return source.isClosed();
-    }
-
+    /**
+     * Returns true if the connection finds data to be read by the program.
+     *
+     * @return If data was found.
+     * @throws IOException If an exception was thrown.
+     */
     public boolean hasData() throws IOException {
         return source.getInputStream().available() > 0;
     }
 
     //anonymous
-    public enum PROPERTIES {
+
+    /**
+     * Types of events that the Connection can handle.
+     */
+    public enum EVENTS {
         ON_CLOSED
     }
 }

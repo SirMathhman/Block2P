@@ -10,7 +10,7 @@ package com.meti.util.event;
  * @version 0.0.0
  * @since 1/12/2018
  */
-public interface Managed {
+public interface Managable {
     /**
      * Returns this object's event manager.
      *

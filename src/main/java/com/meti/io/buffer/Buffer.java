@@ -5,10 +5,10 @@ import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
 import com.meti.util.event.EventManager;
+import com.meti.util.event.Managable;
 import com.meti.util.handle.Handler;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutorService;
  * @version 0.0.0
  * @since 1/5/2018
  */
-public class Buffer<T> {
+public class Buffer<T> implements Managable {
     private final Set<ObjectConnection> connectionSet = new HashSet<>();
     private final HashMap<BUFFER_OPERATION, Handler<T, Object>> handlerMap = new HashMap<>();
     private final HashSet<T> contents = new HashSet<>();
@@ -35,6 +35,11 @@ public class Buffer<T> {
     private boolean open;
     private Loop loop;
 
+//class
+//class
+//class
+//class
+//class
 //class
 //class
 //class
@@ -77,6 +82,11 @@ public class Buffer<T> {
         this.tClass = tClass;
     }
 
+    @Override
+    public EventManager getManager() {
+        return manager;
+    }
+
     /**
      * Adds an array of connections to the internal set of connections.
      * The array of connections can have zero, one, or more than two elements.
@@ -107,15 +117,6 @@ public class Buffer<T> {
      */
     public void clearConnections() {
         this.connectionSet.clear();
-    }
-
-    /**
-     * Gets the internal EventManager.
-     *
-     * @return The internal EventManager.
-     */
-    public EventManager getManager() {
-        return manager;
     }
 
     //changing the buffer
@@ -348,24 +349,6 @@ public class Buffer<T> {
                     }
                 }
             }
-        }
-    }
-
-    private class Change implements Serializable {
-        private final Object object;
-        private final int index;
-
-        public Change(int index, Object object) {
-            this.index = index;
-            this.object = object;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public Object getObject() {
-            return object;
         }
     }
 }
