@@ -1,5 +1,6 @@
 package com.meti.io.buffer;
 
+import com.meti.io.ConnectionException;
 import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
@@ -132,10 +133,21 @@ public class Buffer<T> {
         return !from.equals(to);
     }
 
-    private boolean addImpl(T e) {
-        manager.handle(EVENT.ON_ADD, e);
+    /**
+     * Closes the buffer.
+     * The buffer stops listening from connections.
+     * All connections that are not closed are terminated.
+     *
+     * @throws IOException If an Exception occurred with closing one of the connections.
+     */
+    public void close() throws IOException {
+        loop.setRunning(false);
 
-        return contents.add(e);
+        for (Connection connection : connectionSet) {
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+        }
     }
 
     /**
@@ -147,26 +159,10 @@ public class Buffer<T> {
         return open;
     }
 
-    private Object update(BUFFER_OPERATION operation, T obj) throws Exception {
-        boolean result = true;
-        for (ObjectConnection connection : connectionSet) {
-            connection.writeObject(operation);
-            connection.writeUnshared(obj);
-            connection.flush();
+    private boolean addImpl(T e) {
+        manager.handle(EVENTS.ON_ADD, e);
 
-            Object token = connection.readObject();
-            if (token instanceof Exception) {
-                throw (Exception) token;
-            } else {
-                if (token instanceof Boolean) {
-                    result = result && (Boolean) token;
-                } else {
-                    throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
-                }
-            }
-        }
-
-        return result;
+        return contents.add(e);
     }
 
     /**
@@ -186,10 +182,32 @@ public class Buffer<T> {
         return !from.equals(to);
     }
 
-    private boolean removeImpl(T e) {
-        manager.handle(EVENT.ON_REMOVE, e);
+    private boolean update(BUFFER_OPERATION operation, T obj) throws Exception {
+        boolean result = true;
+        if (connectionSet.size() != 0) {
+            for (ObjectConnection connection : connectionSet) {
+                if (!connection.isClosed()) {
+                    connection.writeObject(operation);
+                    connection.writeUnshared(obj);
+                    connection.flush();
 
-        return contents.remove(e);
+                    Object token = connection.readObject();
+                    if (token instanceof Exception) {
+                        throw (Exception) token;
+                    } else {
+                        if (token instanceof Boolean) {
+                            result = result && (Boolean) token;
+                        } else {
+                            throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
+                        }
+                    }
+                } else {
+                    throw new ConnectionException("Connection closed.");
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -206,10 +224,10 @@ public class Buffer<T> {
         clearImpl();
     }
 
-    private void clearImpl() {
-        manager.handle(EVENT.ON_CLEAR);
+    private boolean removeImpl(T e) {
+        manager.handle(EVENTS.ON_REMOVE, e);
 
-        contents.clear();
+        return contents.remove(e);
     }
 
     /**
@@ -279,19 +297,10 @@ public class Buffer<T> {
         }
     }
 
-    /**
-     * Closes the buffer.
-     * The buffer stops listening from connections.
-     * All connections are terminated.
-     *
-     * @throws IOException If an Exception occurred with closing one of the connections.
-     */
-    public void close() throws IOException {
-        loop.setRunning(false);
+    private void clearImpl() {
+        manager.handle(EVENTS.ON_CLEAR);
 
-        for (Connection connection : connectionSet) {
-            connection.close();
-        }
+        contents.clear();
     }
 
 
@@ -302,7 +311,7 @@ public class Buffer<T> {
      *
      * @see {@link #getManager()}
      */
-    public enum EVENT {
+    public enum EVENTS {
         ON_REMOVE, ON_CLEAR, ON_ADD
     }
 
