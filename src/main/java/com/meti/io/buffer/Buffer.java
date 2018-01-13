@@ -8,6 +8,7 @@ import com.meti.util.event.EventManager;
 import com.meti.util.handle.Handler;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,9 +17,10 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * <p>
- *     A Buffer contains a Set of objects that can be shared across multiple connections.
- *     The Buffer will become synchronized with other buffers.
+ * A Buffer contains a Set of objects that can be shared across multiple connections.
+ * The Buffer will become synchronized with other buffers.
  * </p>
+ *
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
@@ -33,6 +35,8 @@ public class Buffer<T> {
     private boolean open;
     private Loop loop;
 
+//class
+//class
 //class
     {
         handlerMap.put(BUFFER_OPERATION.ADD, new Handler<T, Object>() {
@@ -134,23 +138,6 @@ public class Buffer<T> {
     }
 
     /**
-     * Closes the buffer.
-     * The buffer stops listening from connections.
-     * All connections that are not closed are terminated.
-     *
-     * @throws IOException If an Exception occurred with closing one of the connections.
-     */
-    public void close() throws IOException {
-        loop.setRunning(false);
-
-        for (Connection connection : connectionSet) {
-            if (!connection.isClosed()) {
-                connection.close();
-            }
-        }
-    }
-
-    /**
      * Returns if the buffer is open and listening for connections.
      *
      * @return The state.
@@ -163,23 +150,6 @@ public class Buffer<T> {
         manager.handle(EVENTS.ON_ADD, e);
 
         return contents.add(e);
-    }
-
-    /**
-     * Removes an object from the buffer.
-     *
-     * @param o The object.
-     * @return If it was successfully added to the other buffers.
-     * @throws Exception If an Exception occurred with updating the other buffers.
-     */
-    public boolean remove(T o) throws Exception {
-        if (!isOpen()) {
-            throw new IllegalStateException("Connections are not open.");
-        }
-
-        Object to = update(BUFFER_OPERATION.REMOVE, o);
-        Object from = removeImpl(o);
-        return !from.equals(to);
     }
 
     private boolean update(BUFFER_OPERATION operation, T obj) throws Exception {
@@ -211,6 +181,46 @@ public class Buffer<T> {
     }
 
     /**
+     * Closes the buffer.
+     * The buffer stops listening from connections.
+     * All connections that are not closed are terminated.
+     *
+     * @throws IOException If an Exception occurred with closing one of the connections.
+     */
+    public void close() throws IOException {
+        loop.setRunning(false);
+
+        for (Connection connection : connectionSet) {
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+        }
+    }
+
+    /**
+     * Removes an object from the buffer.
+     *
+     * @param o The object.
+     * @return If it was successfully added to the other buffers.
+     * @throws Exception If an Exception occurred with updating the other buffers.
+     */
+    public boolean remove(T o) throws Exception {
+        if (!isOpen()) {
+            throw new IllegalStateException("Connections are not open.");
+        }
+
+        Object to = update(BUFFER_OPERATION.REMOVE, o);
+        Object from = removeImpl(o);
+        return !from.equals(to);
+    }
+
+    private boolean removeImpl(T e) {
+        manager.handle(EVENTS.ON_REMOVE, e);
+
+        return contents.remove(e);
+    }
+
+    /**
      * Clears the buffer.
      *
      * @throws Exception If an Exception occurred with updating the other buffers.
@@ -224,10 +234,10 @@ public class Buffer<T> {
         clearImpl();
     }
 
-    private boolean removeImpl(T e) {
-        manager.handle(EVENTS.ON_REMOVE, e);
+    private void clearImpl() {
+        manager.handle(EVENTS.ON_CLEAR);
 
-        return contents.remove(e);
+        contents.clear();
     }
 
     /**
@@ -297,12 +307,6 @@ public class Buffer<T> {
         }
     }
 
-    private void clearImpl() {
-        manager.handle(EVENTS.ON_CLEAR);
-
-        contents.clear();
-    }
-
 
 //anonymous
 
@@ -344,6 +348,24 @@ public class Buffer<T> {
                     }
                 }
             }
+        }
+    }
+
+    private class Change implements Serializable {
+        private final Object object;
+        private final int index;
+
+        public Change(int index, Object object) {
+            this.index = index;
+            this.object = object;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public Object getObject() {
+            return object;
         }
     }
 }
