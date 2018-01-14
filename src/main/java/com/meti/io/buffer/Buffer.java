@@ -1,9 +1,14 @@
 package com.meti.io.buffer;
 
+import com.meti.io.ConnectionException;
+import com.meti.io.connect.connections.Connection;
 import com.meti.io.connect.connections.ObjectConnection;
 import com.meti.util.Loop;
+import com.meti.util.event.EventManager;
+import com.meti.util.event.Managable;
 import com.meti.util.handle.Handler;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,99 +16,164 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * <p>
+ * A Buffer contains a Set of objects that can be shared across multiple connections.
+ * The Buffer will become synchronized with other buffers.
+ * </p>
+ *
  * @author SirMathhman
  * @version 0.0.0
  * @since 1/5/2018
  */
-public class Buffer<T> {
+public class Buffer<T> implements Managable {
     private final Set<ObjectConnection> connectionSet = new HashSet<>();
-    private final HashMap<BufferOperation, Handler<T, Object>> handlerMap = new HashMap<>();
-    private final HashSet<T> set = new HashSet<>();
+    private final HashMap<BUFFER_OPERATION, Handler<T, Object>> handlerMap = new HashMap<>();
+    private final HashSet<T> contents = new HashSet<>();
     private final Class<T> tClass;
 
+    private final EventManager manager = new EventManager();
     private boolean open;
     private Loop loop;
 
-    //class
 //class
-    //class
-    //class
-    //class
+//class
+//class
+//class
+//class
+//class
+//class
+//class
     {
-        handlerMap.put(BufferOperation.ADD, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.ADD, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.add(obj);
+                return addImpl(obj);
             }
         });
-        handlerMap.put(BufferOperation.REMOVE, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.REMOVE, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                return set.remove(obj);
+                return removeImpl(obj);
             }
         });
-        handlerMap.put(BufferOperation.CLEAR, new Handler<T, Object>() {
+        handlerMap.put(BUFFER_OPERATION.CLEAR, new Handler<T, Object>() {
             @Override
             public Object handleImpl(T obj) {
-                set.clear();
+                clearImpl();
                 return null;
-            }
-        });
-        handlerMap.put(BufferOperation.CLOSE, new Handler<T, Object>() {
-            @Override
-            public Object handleImpl(T obj) {
-                try {
-                    return closeImpl(true);
-                } catch (Exception e) {
-                    return e;
-                }
             }
         });
     }
 
+    /**
+     * <p>
+     * Constructs a Buffer using an internal HashSet of type tClass and an initial array of connections.
+     * tClass is the generic class that casts the incoming changes from other buffers.
+     * The initial array of connections provided is not limited to be less than two.
+     * These connections will be listened to when the {@link #open} method is declared.
+     * </p>
+     *
+     * @param tClass      The generic class to instantiate.
+     * @param connections The initial array of connections.
+     * @see HashSet
+     */
     public Buffer(Class<T> tClass, ObjectConnection... connections) {
         this.connectionSet.addAll(Arrays.asList(connections));
         this.tClass = tClass;
     }
 
-    public int size() {
-        return set.size();
+    @Override
+    public EventManager getManager() {
+        return manager;
     }
 
-    public boolean isEmpty() {
-        return set.isEmpty();
+    /**
+     * Adds an array of connections to the internal set of connections.
+     * The array of connections can have zero, one, or more than two elements.
+     * These connections will then be listened to.
+     *
+     * @param connections The connections.
+     * @return If the internal set changed successfully.
+     */
+    public boolean addConnections(ObjectConnection... connections) {
+        return this.connectionSet.addAll(Arrays.asList(connections));
     }
 
-    public boolean contains(T o) {
-        return set.contains(o);
+    /**
+     * Removes an array of connections from the internal set of connections.
+     * The array of connections can have zero, one, or more than two elements.
+     * These connections will then be no longer listened to.
+     *
+     * @param connections The connections.
+     * @return If the internal set changed successfully.
+     */
+    public boolean removeConnections(ObjectConnection... connections) {
+        return this.connectionSet.removeAll(Arrays.asList(connections));
+    }
+
+    /**
+     * Clears the internal set of connections.
+     * All connections will then no longer be listened to.
+     */
+    public void clearConnections() {
+        this.connectionSet.clear();
     }
 
     //changing the buffer
+
+    /**
+     * Adds an object to the buffer.
+     *
+     * @param t The object.
+     * @return If it was added successfully to all the buffers.
+     * @throws Exception If an error occurred with updating the other buffers.
+     */
     public boolean add(T t) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        Object to = update(BufferOperation.ADD, t);
-        Object from = set.add(t);
+        Object to = update(BUFFER_OPERATION.ADD, t);
+        Object from = addImpl(t);
         return !from.equals(to);
     }
 
-    public Object update(BufferOperation operation, T obj) throws Exception {
-        boolean result = true;
-        for (ObjectConnection connection : connectionSet) {
-            connection.writeObject(operation);
-            connection.writeUnshared(obj);
-            connection.flush();
+    /**
+     * Returns if the buffer is open and listening for connections.
+     *
+     * @return The state.
+     */
+    public boolean isOpen() {
+        return open;
+    }
 
-            Object token = connection.readObject();
-            if (token instanceof Exception) {
-                throw (Exception) token;
-            } else {
-                if (token instanceof Boolean) {
-                    result = result && (Boolean) token;
+    private boolean addImpl(T e) {
+        manager.handle(EVENTS.ON_ADD, e);
+
+        return contents.add(e);
+    }
+
+    private boolean update(BUFFER_OPERATION operation, T obj) throws Exception {
+        boolean result = true;
+        if (connectionSet.size() != 0) {
+            for (ObjectConnection connection : connectionSet) {
+                if (!connection.isClosed()) {
+                    connection.writeObject(operation);
+                    connection.writeUnshared(obj);
+                    connection.flush();
+
+                    Object token = connection.readObject();
+                    if (token instanceof Exception) {
+                        throw (Exception) token;
+                    } else {
+                        if (token instanceof Boolean) {
+                            result = result && (Boolean) token;
+                        } else {
+                            throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
+                        }
+                    }
                 } else {
-                    throw new IllegalArgumentException("Don't know how to handle data of type " + token.getClass());
+                    throw new ConnectionException("Connection closed.");
                 }
             }
         }
@@ -111,33 +181,124 @@ public class Buffer<T> {
         return result;
     }
 
-    public boolean isOpen() {
-        return open;
+    /**
+     * Closes the buffer.
+     * The buffer stops listening from connections.
+     * All connections that are not closed are terminated.
+     *
+     * @throws IOException If an Exception occurred with closing one of the connections.
+     */
+    public void close() throws IOException {
+        loop.setRunning(false);
+
+        for (Connection connection : connectionSet) {
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+        }
     }
 
+    /**
+     * Removes an object from the buffer.
+     *
+     * @param o The object.
+     * @return If it was successfully added to the other buffers.
+     * @throws Exception If an Exception occurred with updating the other buffers.
+     */
     public boolean remove(T o) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        Object to = update(BufferOperation.REMOVE, o);
-        Object from = set.remove(o);
+        Object to = update(BUFFER_OPERATION.REMOVE, o);
+        Object from = removeImpl(o);
         return !from.equals(to);
     }
 
+    private boolean removeImpl(T e) {
+        manager.handle(EVENTS.ON_REMOVE, e);
+
+        return contents.remove(e);
+    }
+
+    /**
+     * Clears the buffer.
+     *
+     * @throws Exception If an Exception occurred with updating the other buffers.
+     */
     public void clear() throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connections are not open.");
         }
 
-        update(BufferOperation.CLEAR, null);
-        set.clear();
+        update(BUFFER_OPERATION.CLEAR, null);
+        clearImpl();
     }
 
+    private void clearImpl() {
+        manager.handle(EVENTS.ON_CLEAR);
+
+        contents.clear();
+    }
+
+    /**
+     * Returns true if the buffer contains at least one of the items specified.
+     *
+     * @param items The items to search through.
+     * @return The state.
+     */
+    public boolean containsOne(Set<T> items) {
+        for (T item : items) {
+            if (contains(item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if the buffer contains the item specified.
+     *
+     * @param o The item.
+     * @return The state.
+     */
+    public boolean contains(T o) {
+        return contents.contains(o);
+    }
+
+    /**
+     * Returns true if the buffer is empty.
+     *
+     * @return The state.
+     */
+    public boolean isEmpty() {
+        return contents.isEmpty();
+    }
+
+    /**
+     * Returns the size of the buffer.
+     *
+     * @return The size of the buffer.
+     */
+    public int size() {
+        return contents.size();
+    }
+
+    /**
+     * Opens the buffer without using an ExecutorService,
+     * and begins to listen for changes from other buffers.
+     */
     public void open() {
         open(null);
     }
 
+    /**
+     * Opens the buffer using an ExecutorService,
+     * and begins to listen for changes from other buffers.
+     *
+     * @param service The service.
+     */
     public void open(ExecutorService service) {
         loop = new BufferLoop();
         if (service == null) {
@@ -147,33 +308,22 @@ public class Buffer<T> {
         }
     }
 
-    public void awaitUntilSynchronized() {
-        boolean shouldContinue;
-        do {
-            shouldContinue = !open;
-        } while (shouldContinue);
+
+//anonymous
+
+    /**
+     * Types of Events that the Buffer can handle.
+     *
+     * @see {@link #getManager()}
+     */
+    public enum EVENTS {
+        ON_REMOVE, ON_CLEAR, ON_ADD
     }
 
-    public void close() throws Exception {
-        closeImpl(false);
-    }
-
-    public Object closeImpl(boolean remote) throws Exception {
-        loop.setRunning(false);
-
-        if (!remote) {
-            update(BufferOperation.CLOSE, null);
-        }
-
-        return null;
-    }
-
-    //anonymous
-    private enum BufferOperation {
+    private enum BUFFER_OPERATION {
         ADD,
         REMOVE,
         CLEAR,
-        CLOSE
     }
 
     private class BufferLoop extends Loop {
@@ -188,7 +338,7 @@ public class Buffer<T> {
                 for (ObjectConnection connection : connectionSet) {
                     if (!connection.isClosed() && connection.hasData()) {
                         Object token = connection.readObject();
-                        BufferOperation operation = (BufferOperation) token;
+                        BUFFER_OPERATION operation = (BUFFER_OPERATION) token;
                         Object obj = connection.readObject();
                         if (tClass.isAssignableFrom(obj.getClass())) {
                             T tObj = tClass.cast(obj);
